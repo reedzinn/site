@@ -1,0 +1,368 @@
+<script>
+    // Bloqueia botão direito
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Bloqueia teclas de atalho (F12, Ctrl+Shift+I, Ctrl+U)
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123) { // F12
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+            return false;
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U (Ver Fonte)
+            return false;
+        }
+    }
+</script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Seguro - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; }
+        .bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+        .card-glass { background-color: #09090b; border: 1px solid #27272a; }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-yellow { animation: pulseY 2s infinite; }
+        @keyframes pulseY { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+        
+        /* Modal Steps Logic */
+        .step-item { transition: all 0.3s ease; border: 1px solid transparent; }
+        .step-active { background-color: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); }
+        .step-done .step-icon { background-color: #10b981; color: black; border-color: #10b981; }
+        .step-error .step-icon { background-color: #ef4444; color: white; border-color: #ef4444; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-10">
+        <div class="flex items-center gap-3 font-bold text-xl text-white">
+            <div class="w-8 h-8 bg-black border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="text-xs font-bold text-white tracking-tighter">PS</span>
+            </div>
+            <span>Rovix Applications</span>
+        </div>
+        <div id="status-top" class="text-sm text-gray-500 flex items-center gap-2 border border-zinc-800 px-3 py-1 rounded-full bg-zinc-900/50">
+            <i class="fa-solid fa-lock text-xs"></i> Ambiente Seguro
+        </div>
+    </header>
+
+    <main id="main-container" class="flex-grow flex flex-col items-center justify-center px-4 pb-20 z-10">
+        <div id="tela-pagamento" class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+            <div class="col-span-2 text-center text-gray-500 py-20">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600 mb-4"></i>
+                <p class="font-medium animate-pulse">Conectando ao Banco...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-setup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-500">
+        <div class="bg-[#09090b] border border-[#27272a] w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden transform scale-95 transition-transform duration-500" id="modal-box">
+            
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-800 animate-pulse relative">
+                    <i class="fa-solid fa-rocket text-2xl text-emerald-500"></i>
+                    <div class="absolute inset-0 rounded-full border border-emerald-500/30 animate-ping"></div>
+                </div>
+                <h2 class="text-xl font-bold text-white">Pagamento Confirmado!</h2>
+                <p class="text-sm text-gray-500 mt-1">Estamos configurando sua aplicação na nuvem.</p>
+            </div>
+
+            <div class="space-y-3" id="steps-list">
+                <div id="step-1" class="step-item flex items-center gap-4 p-3 rounded-xl">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs transition-colors duration-300">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Calculando Renovação</h4>
+                        <p class="text-zinc-500 text-xs">Buscando a data de expiração...</p>
+                    </div>
+                </div>
+
+                <div id="step-2" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Aplicando Extensão</h4>
+                        <p class="text-zinc-500 text-xs">Atualizando licença em active_bots.json...</p>
+                    </div>
+                </div>
+
+                <div id="step-3" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs">
+                        <i class="fa-solid fa-power-off"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Reiniciando Aplicação</h4>
+                        <p class="text-zinc-500 text-xs">Recarregando o bot com nova validade...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-box" class="hidden mt-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center">
+                <p class="text-red-400 text-sm font-bold mb-2">Ops! Algo deu errado.</p>
+                <p id="error-msg" class="text-red-300/70 text-xs mb-3">...</p>
+                <button onclick="location.reload()" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg text-xs font-bold transition">Tentar Novamente</button>
+                <p class="text-zinc-600 text-[10px] mt-3">Se persistir, contate o suporte.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const faturaId = urlParams.get('faturaId') || localStorage.getItem('zyper_session_renovacao'); // Usa URL ou Local Storage
+        const formatar = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        let checkInterval = null, dadosFatura = null;
+
+        // 1. INICIALIZAÇÃO
+        async function iniciarPagamento() {
+            if(!faturaId) { alert("ID da Fatura não encontrado."); return window.location.href = '/dashboard'; }
+            
+            try {
+                // Busca Dados da Fatura de Renovação
+                const resFatura = await fetch(`/api/renovacao/fatura/${faturaId}`);
+                if (!resFatura.ok) { throw new Error("Fatura não encontrada."); }
+                
+                const dataFatura = await resFatura.json();
+                if(!dataFatura.sucesso) { throw new Error(dataFatura.erro || "Dados da fatura inválidos."); }
+                
+                dadosFatura = dataFatura.fatura;
+
+                // SIMULAÇÃO: Se já estiver pago (ou para fins de teste), ativa direto
+                if (dadosFatura.status === 'aprovado') { 
+                    ativarSistemaAutomatico(); 
+                    return; 
+                }
+
+                // Gera/Recupera Pix (Rota de pagamento específica para renovação)
+                const resPix = await fetch('/api/renovacao/pagamento/pix', {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ faturaId: dadosFatura.faturaId, valor: dadosFatura.precoTotalPeriodo })
+                });
+                const dataPix = await resPix.json();
+
+                if(dataPix.sucesso) { 
+                    renderizarTelaPix(dataPix.pagamento); 
+                    iniciarVerificacao(); 
+                } 
+                else { alert('Erro Pix: ' + (dataPix.erro || 'Falha ao gerar QR Code.')); }
+
+            } catch (err) { 
+                console.error(err); 
+                document.getElementById('tela-pagamento').innerHTML = `<div class="col-span-2 text-center text-red-500 py-20"><i class="fa-solid fa-triangle-exclamation text-4xl mb-4"></i><p class="font-medium">${err.message || 'Erro de conexão ao carregar fatura.'}</p></div>`;
+            }
+        }
+
+        // 2. RENDERIZAÇÃO DA TELA DE PAGAMENTO
+        function renderizarTelaPix(pagamento) {
+            const planoFormatado = dadosFatura.planoEscolhido ? (dadosFatura.planoEscolhido.charAt(0).toUpperCase() + dadosFatura.planoEscolhido.slice(1)) : "Mensal";
+            const nomeProduto = dadosFatura.nomeDoBot || "Aplicação";
+
+            document.getElementById('tela-pagamento').innerHTML = `
+                <div class="card-glass rounded-3xl p-8 flex flex-col items-center text-center fade-in">
+                    <div class="w-full flex justify-between items-center mb-8">
+                        <div class="text-left">
+                            <h2 class="text-2xl font-bold text-white">Pagamento Pix</h2>
+                            <p class="text-xs text-gray-500">Liberação automática</p>
+                        </div>
+                        <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-full px-4 py-2 flex items-center gap-2">
+                            <div class="w-2 h-2 bg-yellow-400 rounded-full pulse-yellow"></div>
+                            <span class="text-xs font-bold text-yellow-500">Aguardando</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-2xl mb-6 shadow-xl relative group">
+                        <img src="${pagamento.qrCodeBase64}" class="w-52 h-52 object-contain mix-blend-multiply">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
+                            <p class="text-black font-bold text-xs bg-white/80 px-2 py-1 rounded shadow">Scan me</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full flex gap-2">
+                        <div class="relative w-full">
+                            <input type="text" value="${pagamento.copiaCola}" readonly class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-4 pr-12 py-3 text-xs text-gray-400 font-mono truncate focus:outline-none focus:border-indigo-500 transition-colors">
+                            <div class="absolute right-3 top-3 text-zinc-600"><i class="fa-regular fa-paste"></i></div>
+                        </div>
+                        <button onclick="copingCodigo()" class="bg-white text-black font-bold px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 flex items-center gap-2 text-amber-500/80 bg-amber-500/5 px-4 py-2 rounded-lg border border-amber-500/10">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="text-xs font-mono font-bold">Expira em: <span id="timer">--:--</span></span>
+                    </div>
+                </div>
+
+                <div class="card-glass rounded-3xl p-8 flex flex-col h-full fade-in relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+                    <div class="text-center mb-8 z-10">
+                        <div class="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto mb-3 text-gray-400">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-lg">Resumo da Renovação</h3>
+                        <p class="text-xs text-gray-500 font-mono">Fatura ID: #${dadosFatura.faturaId.slice(-6)}</p>
+                    </div>
+
+                    <div class="space-y-3 mb-6 flex-grow">
+                        <div class="bg-[#121214] border border-zinc-800/50 rounded-xl p-4 flex justify-between items-center hover:border-zinc-700 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <span class="text-sm text-gray-400 font-medium">Aplicação</span>
+                            </div>
+                            <span class="text-sm font-bold text-white">${nomeProduto}</span>
+                        </div>
+
+                        <div class="bg-[#121214] border border-zinc-800/50 rounded-xl p-4 flex justify-between items-center hover:border-zinc-700 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-xs">
+                                    <i class="fa-solid fa-rotate"></i>
+                                </div>
+                                <span class="text-sm text-gray-400 font-medium">Período</span>
+                            </div>
+                            <span class="text-sm font-bold text-white">${dadosFatura.meses} Meses</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#121214] border border-zinc-800 rounded-2xl p-6 text-center mt-auto relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        <p class="text-gray-500 text-[10px] font-bold uppercase mb-1 tracking-widest">TOTAL A PAGAR</p>
+                        <h2 class="text-4xl font-bold text-white tracking-tight">${formatar(dadosFatura.precoTotalPeriodo)}</h2>
+                    </div>
+
+                    <a href="/revisaofatura?faturaId=${dadosFatura.faturaId}" class="w-full mt-6 text-xs font-bold text-zinc-500 hover:text-white transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Voltar para Revisão
+                    </a>
+                </div>`;
+            
+            iniciarTimerVisual(pagamento.expiraEm);
+        }
+
+        // 3. POLLING DE STATUS (Verifica a cada 5s se pagou)
+        function iniciarVerificacao() {
+            if (checkInterval) return;
+            checkInterval = setInterval(async () => {
+                try {
+                    // Checa o status de pagamento na rota de renovação
+                    const res = await fetch(`/api/renovacao/pagamento/status/${dadosFatura.faturaId}`);
+                    const data = await res.json();
+                    if (data.pago) { 
+                        clearInterval(checkInterval); 
+                        ativarSistemaAutomatico(); 
+                    }
+                } catch (e) {}
+            }, 5000);
+        }
+
+        // 4. LÓGICA DE ATIVAÇÃO/RENOVAÇÃO + MODAL
+        async function ativarSistemaAutomatico() {
+            // UI Feedback
+            document.getElementById('tela-pagamento').classList.add('blur-sm');
+            document.getElementById('status-top').innerHTML = '<span class="text-emerald-500 font-bold"><i class="fa-solid fa-check"></i> Pago</span>';
+
+            // Show Modal
+            const modal = document.getElementById('modal-setup');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); box.classList.add('scale-100'); }, 10);
+
+            // Funcão auxiliar para controlar os steps
+            const updateStep = (id, status) => {
+                const el = document.getElementById(id);
+                const icon = el.querySelector('.step-icon');
+                el.classList.remove('opacity-50'); el.classList.add('step-active');
+                if(status==='loading') { icon.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>'; icon.className="step-icon w-8 h-8 rounded-full border border-emerald-500 text-emerald-500 flex items-center justify-center text-xs bg-emerald-500/10"; }
+                else if(status==='done') { el.classList.add('step-done'); el.classList.remove('step-active'); icon.innerHTML='<i class="fa-solid fa-check"></i>'; }
+                else if(status==='error') { el.classList.add('step-error'); icon.innerHTML='<i class="fa-solid fa-xmark"></i>'; }
+            };
+
+            // INÍCIO DO PROCESSO (Visual + Real)
+            updateStep('step-1', 'loading');
+
+            try {
+                // Chama a API que faz a RENOVAÇÃO (Atualiza a data de expiração)
+                const res = await fetch('/api/renovacao/ativar', {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ 
+                        faturaId: dadosFatura.faturaId,
+                        appId: dadosFatura.idAppSquarecloud,
+                        meses: dadosFatura.meses
+                    })
+                });
+
+                // Simula tempo de processamento visualmente
+                await new Promise(r => setTimeout(r, 2000));
+                updateStep('step-1', 'done');
+                updateStep('step-2', 'loading');
+
+                const data = await res.json();
+                
+                if(data.sucesso) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    updateStep('step-2', 'done');
+                    updateStep('step-3', 'loading');
+                    
+                    // Simulação de reinício (visual)
+                    await new Promise(r => setTimeout(r, 1500));
+                    
+                    updateStep('step-3', 'done');
+                    
+                    // Redireciona para o painel de gerenciamento do bot
+                    setTimeout(() => {
+                        window.location.href = `/gerenciar?id=${dadosFatura.idAppSquarecloud}`;
+                    }, 3000);
+                } else {
+                    throw new Error(data.erro || "Erro na ativação da renovação.");
+                }
+            } catch (e) {
+                updateStep('step-1', 'error'); updateStep('step-2', 'error'); updateStep('step-3', 'error');
+                document.getElementById('error-box').classList.remove('hidden');
+                document.getElementById('error-msg').innerText = e.message;
+            }
+        }
+
+        // Utils
+        function iniciarTimerVisual(dataExpiracao) {
+            const timer = document.getElementById('timer');
+            if(!timer) return;
+            const expirationTime = new Date(dataExpiracao).getTime();
+            
+            setInterval(() => {
+                const restante = expirationTime - Date.now();
+                if (restante <= 0) { timer.innerText = "EXPIRADO"; return; }
+                const min = Math.floor((restante / 1000 / 60) % 60);
+                const sec = Math.floor((restante / 1000) % 60);
+                timer.innerText = `${min}:${sec < 10 ? '0'+sec : sec}`;
+            }, 1000);
+        }
+        function copingCodigo() { document.querySelector('input[readonly]').select(); document.execCommand('copy'); alert("Código Copiado!"); }
+        
+        iniciarPagamento();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

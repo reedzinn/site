@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* PADRÃO ZYPER/DASHBOARD */
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; }
+        
+        /* --- BLINDAGEM CSS (Resolve o FOUC) --- */
+        body {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        body.loaded {
+            visibility: visible;
+            opacity: 1;
+        }
+        #global-loader {
+            visibility: visible;
+            opacity: 1;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: #050505;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: opacity 0.4s ease;
+        }
+        /* -------------------------------------- */
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -1; 
+            background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); 
+            background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); 
+        }
+
+        /* Card de Conteúdo e Alerta */
+        .content-card {
+            background-color: #09090b; 
+            border: 1px solid #27272a;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .alert-box {
+            background-color: #5865F21A;
+            border: 1px solid #5865F250; 
+            color: #d1d5db;
+        }
+        .info-item {
+            border-left: 3px solid #6366f1; /* Linha roxa/indigo para informações */
+        }
+        /* Estilo do Dropdown */
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="global-loader">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600"></i>
+        <p class="text-zinc-500 text-sm font-mono animate-pulse tracking-widest">CARREGANDO PRIVACIDADE...</p>
+    </div>
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <div class="w-9 h-9 bg-black border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="text-sm font-bold text-white tracking-tighter">PS</span>
+            </div>
+            Rovix Applications
+        </div>
+
+        <nav class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
+            <a href="/" class="hover:text-white transition">Início</a>
+            <a href="/#planos" class="hover:text-white transition">Planos</a>
+            <a href="/termos" class="text-white transition">Sobre</a> 
+            <a href="/status" class="hover:text-white transition">Status</a>
+        </nav>
+
+        <div id="auth-area" class="relative">
+        </div>
+    </header>
+    <main class="flex-grow w-full max-w-4xl mx-auto px-6 py-12 relative z-10">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">Política de Privacidade</h1>
+            <p class="text-zinc-500">Comprometimento com a segurança e privacidade dos seus dados.</p>
+        </div>
+
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">1. Introdução e Aceitação</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed">
+                Esta política descreve como a Rovix Applications coleta, usa, armazena e protege as informações
+                dos usuários ao utilizar nossos bots e painéis web. Ao se registrar ou fazer uma compra,
+                você aceita integralmente as práticas descritas neste documento.
+            </p>
+        </div>
+
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">2. Informações Coletadas</h2>
+            
+            <div class="p-4 rounded-xl info-item mb-4">
+                <p class="font-semibold text-indigo-400"><i class="fa-solid fa-user mr-2"></i> Dados de Identificação (Discord)</p>
+                <p class="text-sm text-zinc-400 mt-1">Coletamos o ID do Discord, nome de usuário e avatar **apenas** para autenticação e gerenciamento de permissões.</p>
+            </div>
+
+            <ul class="text-zinc-400 text-sm space-y-2 ml-4 list-disc">
+                <li>**Dados de Transação:** Registros de compra (valor, plano e ID da transação PIX/Gateway) são mantidos para fins fiscais e de suporte.</li>
+                <li>**Dados de Uso:** Registros anônimos sobre o uso do painel para otimização de performance e detecção de bugs.</li>
+            </ul>
+        </div>
+
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">3. Finalidade do Uso</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed">
+                As informações coletadas são estritamente utilizadas para a **entrega e manutenção do serviço contratado**, garantindo que a aplicação correta seja vinculada ao usuário correto e para a segurança da infraestrutura.
+            </p>
+        </div>
+
+
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">4. Compartilhamento de Dados</h2>
+            <div class="alert-box p-4 rounded-xl mb-4">
+                <p class="font-bold text-red-300"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Nosso Compromisso</p>
+                <p class="text-sm text-zinc-300 mt-1">A Rovix Applications **NÃO VENDE, ALUGAS OU COMERCIALIZA** dados pessoais de nossos usuários. Suas informações são tratadas como confidenciais.</p>
+            </div>
+            <ul class="text-zinc-400 text-sm space-y-2 ml-4 list-disc">
+                <li>Os dados só serão compartilhados se houver obrigação legal (mandado judicial) ou para proteger os direitos da Rovix Applications em caso de fraude.</li>
+            </ul>
+        </div>
+        
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">5. Segurança dos Dados</h2>
+            <ul class="text-zinc-400 text-sm space-y-3">
+                <li>Utilizamos criptografia SSL/TLS em todas as transferências de dados.</li>
+                <li>O armazenamento é realizado em servidores seguros, protegidos por firewalls avançados.</li>
+                <li>O acesso aos dados é restrito apenas a funcionários autorizados que necessitem deles para executar o serviço ou suporte.</li>
+            </ul>
+        </div>
+        
+        <div class="content-card p-8 mb-10">
+            <h2 class="text-xl font-extrabold mb-5">6. Alterações nesta Política</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed">
+                Esta Política de Privacidade pode ser atualizada a qualquer momento. Quaisquer alterações serão comunicadas através do nosso servidor oficial do Discord ou do painel de administração, e a data da última revisão será atualizada no topo do documento.
+            </p>
+        </div>
+
+
+        <div class="content-card p-8 text-center">
+            <h3 class="text-lg font-bold mb-4">Dúvidas sobre Privacidade?</h3>
+            <p class="text-zinc-400 mb-6">Entre em contato com nosso Encarregado de Dados (DPO) via suporte oficial.</p>
+            <a href="https://discord.gg/rovix" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-xl transition text-sm inline-flex items-center gap-2">
+                <i class="fa-brands fa-discord"></i> Contato DPO
+            </a>
+        </div>
+            
+    </main>
+
+    <footer class="py-16 bg-[#09090b] border-t border-zinc-800 z-10 relative mt-auto">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-12 text-left">
+            
+            <div class="col-span-2 md:col-span-2">
+                <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide mb-4">
+                    <div class="w-9 h-9 bg-black border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg">
+                        <span class="text-sm font-bold text-white tracking-tighter">PS</span>
+                    </div>
+                    <span class="text-xl font-bold">Rovix Applications</span>
+                </div>
+                <p class="text-sm text-zinc-400 max-w-sm">
+                    Soluções premium e infraestrutura cloud proprietária para comunidades digitais.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase mb-4 tracking-wider">Produtos</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="/#planos" class="text-zinc-400 hover:text-white transition">Planos</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase mb-4 tracking-wider">Legal</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="/termos" class="text-zinc-400 hover:text-white transition">Termos de Uso</a></li>
+                    <li><a href="/privacidade" class="text-zinc-400 hover:text-white transition">Privacidade</a></li>
+                    <li><a href="/termos" class="text-zinc-400 hover:text-white transition">Termos de Lgpd</a></li>
+                    <li><a href="/faq" class="text-zinc-400 hover:text-white transition">FAQ / Dúvidas</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white uppercase mb-4 tracking-wider">Social</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="https://discord.gg/rovix" class="text-zinc-400 hover:text-white transition flex items-center gap-2"><i class="fa-brands fa-discord"></i> Discord</a></li>
+                    <li><a href="https://discord.gg/rovix" class="text-zinc-400 hover:text-white transition flex items-center gap-2"><i class="fa-brands fa-instagram"></i> Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-6 mt-12 pt-8 text-center border-t border-zinc-900">
+            <p class="text-zinc-600 text-xs">
+                &copy; 2025 Rovix Applications. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+    <script>
+        // --- FUNÇÃO PARA REVELAR O SITE (PADRÃO FOUC FIX) ---
+        function revelarSite() {
+            const loader = document.getElementById('global-loader');
+            const body = document.body;
+            setTimeout(() => { 
+                if(loader) loader.style.opacity = '0'; 
+                setTimeout(() => { 
+                    if(loader) loader.style.display = 'none'; 
+                    body.classList.add('loaded'); 
+                }, 300); 
+            }, 300);
+        }
+
+        // --- LÓGICA DE AUTENTICAÇÃO DINÂMICA (CORRIGIDA) ---
+        function carregarAuthArea() {
+            const userJson = localStorage.getItem('zyper_user');
+            const authArea = document.getElementById('auth-area');
+            
+            if (userJson) {
+                try {
+                    const user = JSON.parse(userJson);
+                    const avatar = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+                    
+                    authArea.innerHTML = `
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full hover:bg-white/5 hover:border-white/20 transition group relative z-50">
+                            <img src="${avatar}" class="w-9 h-9 rounded-full border border-white/10 object-cover">
+                            <div class="text-left hidden sm:block">
+                                <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                                <p class="text-[10px] text-zinc-500">Logado</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-xs text-zinc-600 group-hover:text-white transition ml-2"></i>
+                        </button>
+
+                        <div id="user-menu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                            <div class="p-3 border-b border-zinc-800 mb-2">
+                                <p class="text-xs text-zinc-400">Olá,</p>
+                                <p class="text-sm font-bold text-white truncate">${user.username}</p>
+                            </div>
+                            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                            <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-gear w-4"></i> Minha Conta</a>
+                            <div class="h-px bg-zinc-800 my-2"></div>
+                            <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-arrow-right-from-bracket w-4"></i> Sair</button>
+                        </div>
+                    `;
+                } catch(e) { logout(); }
+            } else {
+                authArea.innerHTML = `
+                    <div class="flex items-center gap-5">
+                        <a href="/login.html" class="bg-white text-black px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition">Login</a>
+                    </div>`;
+            }
+        }
+        
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            if(menu) menu.classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('zyper_user');
+            window.location.href = '/';
+        }
+
+        // --- CORREÇÃO DO BUG DE MENU ABERTO (Garante que só feche ao clicar fora) ---
+        window.onclick = function(event) {
+            const authArea = document.getElementById('auth-area');
+            const menu = document.getElementById('user-menu');
+            
+            if (menu && authArea && !authArea.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        }
+        // --- FIM CORREÇÃO BUG ---
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarAuthArea();
+            revelarSite(); // Chama no final do DOM para remover a blindagem
+        });
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Rovix Applications - Home</title>
+    <meta name="title" content="Rovix Applications - Especialistas em Automação para Discord">
+    <meta name="description" content="A maior referência em bots de vendas automáticas, gestão de tickets e automações inteligentes. Transforme seu servidor em uma estrutura de alta performance com suporte 24/7 e tecnologia cloud de ponta.">
+    <meta name="theme-color" content="#7c3aed">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://rovixapplications.camposcloud.app/">
+    <meta property="og:title" content="Rovix Applications">
+    <meta property="og:description" content="Aumente seus lucros com nossa infraestrutura de vendas automáticas. Bots robustos, sistemas de tickets escaláveis e automação total para sua comunidade. Domine o mercado com a Rovix Applications.">
+    <meta property="og:image" content="https://rovixapplications.camposcloud.app/img/rovix-logo.webp">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Rovix Applications - Automação e Bots">
+    <meta property="twitter:description" content="Bots de vendas, suporte e gestão. A solução definitiva para servidores profissionais.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; overflow-x: hidden; scroll-behavior: smooth; }
+        body { visibility: hidden; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        body.loaded { visibility: visible; opacity: 1; }
+
+        /* --- EFEITOS DE FUNDO --- */
+        .aura { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%); filter: blur(80px); z-index: -1; pointer-events: none; }
+        .aura-1 { top: -10%; left: -10%; animation: float 20s infinite alternate; }
+        .aura-2 { bottom: -10%; right: -10%; animation: float 25s infinite alternate-reverse; }
+        @keyframes float { from { transform: translate(0, 0); } to { transform: translate(100px, 50px); } }
+
+        .bg-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-size: 50px 50px; background-image: linear-gradient(to right, rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.03) 1px, transparent 1px); }
+        
+        .text-purple-gradient { background: linear-gradient(to right, #a78bfa, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* --- CARDS DE RECURSOS --- */
+        .feature-card { background: rgba(10, 10, 10, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); transition: all 0.3s ease; }
+        .feature-card:hover { border-color: #7c3aed; transform: translateX(10px); background: rgba(124, 58, 237, 0.08); }
+
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+
+        /* Canvas da Neve */
+        #snowCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+
+        /* --- ESTILOS DO CARROSSEL DE CLIENTES --- */
+        .carousel-wrapper { overflow: hidden; width: 100%; padding: 20px 0; position: relative; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
+        .carousel-track { display: flex; gap: 20px; width: max-content; animation: scroll 45s linear infinite; }
+        .carousel-track:hover { animation-play-state: paused; }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .client-card { 
+            position: relative;
+            background: #0a0a0a; 
+            border: 2px solid #1a1b1e; 
+            border-radius: 12px; 
+            padding: 12px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            min-width: 310px; 
+            height: 85px;
+            transition: 0.3s; 
+            text-decoration: none; 
+            overflow: hidden;
+        }
+        .client-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--bg-img);
+            background-size: cover;
+            background-position: center;
+            opacity: 0.12;
+            z-index: 0;
+        }
+        .client-card:hover { border-color: #7c3aed; transform: translateY(-5px); box-shadow: 0 0 20px rgba(124, 58, 237, 0.15); }
+        .client-card img.server-icon { width: 48px; height: 48px; border-radius: 10px; z-index: 1; border: 1px solid rgba(255,255,255,0.05); }
+        .card-content { z-index: 1; flex-grow: 1; }
+        .card-title { color: #fff; font-weight: 700; font-size: 14px; margin-bottom: 2px; display: block; }
+        .card-stats { display: flex; gap: 12px; font-size: 11px; color: #94a3b8; font-weight: 600; }
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+        .discord-icon { color: rgba(255,255,255,0.15); font-size: 18px; z-index: 1; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+    <canvas id="snowCanvas"></canvas>
+    <div class="aura aura-1"></div>
+    <div class="aura aura-2"></div>
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-purple-500">Applications</span></span>
+        </div>
+        <nav class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="/" class="text-white">Início</a>
+            <a href="planos" class="hover:text-purple-400 transition">Planos</a>
+            <a href="/sobre" class="hover:text-purple-400 transition">Sobre</a>
+            <a href="/status" class="hover:text-purple-400 transition">Status</a>
+        </nav>
+        <div id="auth-area" class="relative"></div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-8 py-20 z-10 relative">
+        <section class="flex flex-col items-center text-center mb-16">
+            <h1 class="font-bold text-white leading-tight tracking-tighter mb-4">
+                <span class="text-6xl md:text-8xl block mb-2">Rovix <span class="text-purple-500">Applications</span></span>
+                <span class="text-4xl md:text-6xl text-purple-gradient block">Seu futuro Bot está aqui.</span>
+            </h1>
+            
+            <p class="max-w-2xl text-zinc-400 text-lg md:text-xl leading-relaxed mb-10">
+                Transforme seu servidor no Discord em uma plataforma funcional e eficiente. Com nossa solução, você melhora a interação, organização e gestão.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-20">
+                <a href="/dashboard" class="bg-purple-600 text-white px-10 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-purple-500 transition shadow-xl shadow-purple-500/10">
+                    Ir para a Dashboard <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <a href="planos" class="border border-zinc-800 text-white px-10 py-4 rounded-2xl font-bold hover:bg-zinc-900 transition">
+                    Ver Planos
+                </a>
+            </div>
+
+            <div class="w-full">
+                <h2 class="text-2xl font-bold text-white mb-2">Nossos Clientes</h2>
+                <p class="text-zinc-500 text-sm mb-10">Explore as melhores comunidades do Discord e conecte-se com milhares de pessoas:</p>
+                <div class="carousel-wrapper">
+                    <div class="carousel-track" id="servidores-track">
+                        </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="recursos" class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center py-20">
+            <div>
+                <h2 class="text-4xl font-bold text-white mb-6 leading-tight">Tudo o que você precisa para <span class="text-purple-500">escala total</span></h2>
+                <p class="text-zinc-400 mb-8 leading-relaxed">Sistemas completos de vendas, tickets e gestão. Automatize cada detalhe do seu servidor e foque no seu crescimento.</p>
+                <div class="flex gap-4">
+                    <div class="bg-purple-600/10 border border-purple-500/20 p-4 rounded-2xl text-center min-w-[100px]">
+                        <p class="text-2xl font-bold text-white">99.9%</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Uptime</p>
+                    </div>
+                    <div class="bg-purple-600/10 border border-purple-500/20 p-4 rounded-2xl text-center min-w-[100px]">
+                        <p class="text-2xl font-bold text-white">24/7</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Suporte</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="feature-card p-6 rounded-3xl flex items-center gap-5">
+                    <div class="w-12 h-12 bg-purple-600/20 rounded-2xl flex items-center justify-center text-purple-500"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <div><h4 class="font-bold text-white text-lg">Sistema de Vendas</h4><p class="text-sm text-zinc-500">Gerencie produtos e transações de forma automatizada.</p></div>
+                </div>
+                <div class="feature-card p-6 rounded-3xl flex items-center gap-5">
+                    <div class="w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div><h4 class="font-bold text-white text-lg">Segurança</h4><p class="text-sm text-zinc-500">Proteção robusta e sistemas de verificação segura.</p></div>
+                </div>
+                <div class="feature-card p-6 rounded-3xl flex items-center gap-5">
+                    <div class="w-12 h-12 bg-green-600/20 rounded-2xl flex items-center justify-center text-green-500"><i class="fa-solid fa-bolt"></i></div>
+                    <div><h4 class="font-bold text-white text-lg">Automação Inteligente</h4><p class="text-sm text-zinc-500">Tarefas repetitivas resolvidas instantaneamente.</p></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-20 border-t border-zinc-900 bg-[#050505] relative z-10">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div class="col-span-1">
+                <div class="flex items-center gap-3 font-bold text-xl text-white mb-6">
+                    <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:30px;height:30px;object-fit:cover;border-radius:999px;">
+                    <span>Rovix Applications</span>
+                </div>
+                <p class="text-zinc-500 text-sm leading-relaxed">Infraestrutura cloud proprietária para comunidades de alta performance.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 col-span-1 md:col-span-3 gap-8 md:justify-items-end">
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Produtos</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="planos" class="hover:text-purple-500">Planos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="/termos" class="hover:text-purple-400">Termos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Social</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="https://discord.gg/rovix" class="hover:text-purple-500"><i class="fa-brands fa-discord"></i> Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-8 mt-20 pt-8 border-t border-zinc-900 text-center">
+            <p class="text-zinc-700 text-xs tracking-widest uppercase">© 2026 Rovix Applications.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function carregarClientes() {
+            try {
+                const res = await fetch('/api/servidores/lista');
+                const servidores = await res.json();
+                const track = document.getElementById('servidores-track');
+                if (servidores.length === 0) return;
+                const formatNum = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n;
+                const listaFinal = [...servidores, ...servidores, ...servidores]; 
+                track.innerHTML = listaFinal.map(s => `
+                    <a href="${s.convite}" target="_blank" class="client-card" style="--bg-img: url('${s.icone}')">
+                        <img src="${s.icone}" class="server-icon" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div class="card-content text-left">
+                            <span class="card-title">${s.nome}</span>
+                            <div class="card-stats">
+                                <div class="stat-item"><span class="dot"></span> ${formatNum(s.membros)} membros</div>
+                                <div class="stat-item"><span class="dot"></span> ${formatNum(s.online)} online</div>
+                            </div>
+                        </div>
+                        <i class="fa-brands fa-discord discord-icon"></i>
+                    </a>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('active'); }
+        function logout() { localStorage.removeItem('zyper_user'); window.location.href = '/'; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarClientes();
+            const userJson = localStorage.getItem('zyper_user');
+            const authArea = document.getElementById('auth-area');
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                authArea.innerHTML = `
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full relative z-50">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-9 h-9 rounded-full object-cover">
+                        <div class="text-left hidden sm:block">
+                            <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-xs text-zinc-600 ml-2"></i>
+                    </button>
+                    <div id="user-menu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50 text-left">
+                        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                        <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-gear w-4"></i> Minha Conta</a>
+                        <div class="h-px bg-zinc-800 my-2"></div>
+                        <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-sign-out w-4"></i> Sair</button>
+                    </div>`;
+            } else {
+                authArea.innerHTML = `<a href="/login" class="bg-white text-black px-6 py-2 rounded-xl font-bold text-sm hover:bg-zinc-200 transition">Entrar</a>`;
+            }
+            document.body.classList.add('loaded');
+        });
+
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, snowflakes = [];
+        function initCanvas() {
+            width = window.innerWidth; height = window.innerHeight;
+            canvas.width = width; canvas.height = height;
+            snowflakes = [];
+            for (let i = 0; i < 150; i++) {
+                snowflakes.push({
+                    x: Math.random() * width, y: Math.random() * height,
+                    radius: Math.random() * 2 + 1, speed: Math.random() * 1 + 0.5,
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+        }
+        function animate() {
+            ctx.clearRect(0, 0, width, height); ctx.fillStyle = 'white';
+            snowflakes.forEach(flake => {
+                ctx.beginPath(); ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                ctx.globalAlpha = flake.opacity; ctx.fill();
+                flake.y += flake.speed; flake.x += Math.sin(flake.y / 50) * 0.5;
+                if (flake.y > height) { flake.y = -10; flake.x = Math.random() * width; }
+            });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); animate();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

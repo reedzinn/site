@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow: hidden; }
+        
+        /* Preloader */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        body.loaded { visibility: visible; opacity: 1; }
+
+        /* Background e Aura */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -2; 
+            background-image: linear-gradient(to right, rgba(124, 58, 237, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.05) 1px, transparent 1px); 
+            background-size: 50px 50px;
+        }
+        .aura { 
+            position: fixed; width: 500px; height: 500px; border-radius: 50%; 
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%); 
+            filter: blur(80px); z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        }
+
+        /* Card de Login */
+        .login-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .discord-btn {
+            background-color: #5865F2;
+            transition: all 0.3s ease;
+        }
+        .discord-btn:hover {
+            background-color: #4752c4;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(88, 101, 242, 0.4);
+        }
+
+        #snowCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <canvas id="snowCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="aura"></div>
+
+    <main class="w-full max-w-[450px] relative z-10">
+        <div class="login-card p-8 md:p-12 text-center">
+            <div class="flex justify-center mb-8">
+                <div class="w-20 h-20 bg-purple-600/10 rounded-3xl flex items-center justify-center border border-purple-500/20 shadow-inner">
+                    <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:45px;height:45px;object-fit:cover;border-radius:999px;">
+                </div>
+            </div>
+
+            <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
+            <p class="text-zinc-500 mb-10 text-sm">Acesse sua conta via Discord para gerenciar suas aplicações na <span class="text-purple-400 font-bold">Rovix Applications</span>.</p>
+
+            <a href="/api/auth/discord" class="discord-btn w-full flex items-center justify-center gap-3 text-white font-bold py-4 rounded-2xl mb-6">
+                <i class="fa-brands fa-discord text-xl"></i>
+                Entrar com Discord
+            </a>
+
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-px bg-zinc-800 flex-grow"></div>
+                <span class="text-[10px] text-zinc-600 uppercase font-black tracking-widest">Segurança Garantida</span>
+                <div class="h-px bg-zinc-800 flex-grow"></div>
+            </div>
+
+            <a href="/" class="text-zinc-500 hover:text-white transition text-xs font-medium flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para a Home
+            </a>
+        </div>
+
+        <p class="text-center mt-8 text-zinc-700 text-[10px] uppercase tracking-[3px]">
+            © 2025 Rovix Applications
+        </p>
+    </main>
+
+    <script>
+        // Revelar Site
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+
+        // Efeito Neve
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, flakes = [];
+
+        function initSnow() {
+            w = window.innerWidth; h = window.innerHeight;
+            canvas.width = w; canvas.height = h;
+            flakes = [];
+            for(let i=0; i<80; i++) flakes.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*2+1, d:Math.random()+0.3});
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0,0,w,h);
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
+            ctx.beginPath();
+            flakes.forEach(f => {
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+                f.y += f.d; f.x += Math.sin(f.y/50)*0.5;
+                if(f.y > h) f.y = -10;
+            });
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+
+        initSnow();
+        drawSnow();
+        window.onresize = initSnow;
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

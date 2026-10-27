@@ -1,0 +1,324 @@
+<script>
+    // Bloqueia botão direito
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Bloqueia teclas de atalho (F12, Ctrl+Shift-I, Ctrl-U)
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123) { // F12
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift-I
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift-C
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift-J
+            return false;
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U (Ver Fonte)
+            return false;
+        }
+    }
+</script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisão de Renovação - Prime</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; }
+        .bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+        .card-glass { background-color: #09090b; border: 1px solid #27272a; }
+        .input-cupom { background: #09090b; border: 1px solid #27272a; color: white; transition: 0.3s; }
+        .input-cupom:focus { border-color: #5865F2; outline: none; box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2); }
+        
+        /* Dropdown CSS */
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        
+        /* Avatar Container */
+        .prod-avatar {
+            width: 80px; 
+            height: 80px; 
+            border-radius: 16px; 
+            background-color: #1f2937; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #3f3f46;
+        }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            
+            <div class="w-9 h-9 bg-black border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="text-sm font-bold text-white tracking-tighter">PS</span>
+            </div>
+            
+            Rovix Applications
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div id="header-user-info" class="hidden md:flex relative"></div>
+            <a href="/dashboard" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition flex items-center gap-2">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center pt-10 px-4 pb-20 z-10">
+        <div class="flex items-center gap-4 mb-16 text-sm font-bold tracking-wide">
+            <div class="flex flex-col items-center gap-2 text-emerald-500">
+                <div class="w-10 h-10 rounded-xl bg-zinc-900 border border-emerald-500/30 flex items-center justify-center"><i class="fa-solid fa-check"></i></div><span>CONFIGURAR</span>
+            </div>
+            <div class="w-16 h-[2px] bg-gradient-to-r from-emerald-500 to-indigo-600"></div>
+            <div class="flex flex-col items-center gap-2 text-white">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.6)]">2</div><span>REVISÃO</span>
+            </div>
+            <div class="w-16 h-[2px] bg-zinc-800"></div>
+            <div class="flex flex-col items-center gap-2 text-zinc-600">
+                <div class="w-10 h-10 rounded-xl border border-zinc-800 flex items-center justify-center bg-zinc-900">3</div><span>PAGAMENTO</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 w-full max-w-5xl items-start">
+            <div class="md:col-span-5 space-y-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Revisão da Renovação</h2>
+                <p class="text-gray-500 text-sm mb-6">Confira os detalhes da sua fatura antes de prosseguir com o pagamento.</p>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Cupom de Desconto</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="cupom-input" placeholder="CÓDIGO" class="input-cupom w-full px-4 py-3 rounded-xl text-sm placeholder-gray-600 uppercase">
+                        <button onclick="aplicarCupom()" id="btn-aplicar" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition border border-zinc-700">Aplicar</button>
+                    </div>
+                    <p id="msg-cupom" class="text-xs mt-2 min-h-[16px]"></p>
+                </div>
+                
+                <div class="card-glass rounded-2xl p-5 flex items-start gap-4 mt-4">
+                    <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-shield-halved text-emerald-500 text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Renovação Garantida</h4>
+                        <p class="text-gray-500 text-xs mt-1 leading-relaxed">
+                            A renovação da sua aplicação será processada instantaneamente após a confirmação do pagamento.
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="window.location.href='/cartrenovar?id=' + dadosFatura.idAppSquarecloud" class="w-full mt-4 border border-zinc-700 text-gray-400 hover:text-white hover:bg-zinc-800 font-bold py-3 rounded-xl transition text-sm">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Voltar e Alterar Período
+                </button>
+            </div>
+
+            <div class="md:col-span-7">
+                <div class="card-glass rounded-3xl p-10 flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-indigo-900/20 to-transparent pointer-events-none"></div>
+                    
+                    <div id="prod-icon" class="prod-avatar shadow-2xl mb-6 relative z-10">
+                        <i class="fa-solid fa-sync fa-spin text-2xl text-zinc-500"></i>
+                    </div>
+                    
+                    <h2 id="prod-nome" class="text-2xl font-bold text-white mb-2 relative z-10">Carregando Bot...</h2>
+                    <span id="label-plano" class="bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg shadow-indigo-500/20 relative z-10">...</span>
+                    
+                    <div class="h-[1px] bg-zinc-800 w-full my-8"></div>
+                    
+                    <div class="w-full flex justify-between items-center mb-2"><span class="text-gray-400 text-sm font-medium">Plano</span><span id="periodo-plano" class="text-white font-bold text-sm">...</span></div>
+                    <div class="w-full flex justify-between items-center mb-2"><span class="text-gray-400 text-sm font-medium">Preço Base Mensal</span><span id="valor-base-mensal" class="text-white font-bold text-sm">R$ 0,00</span></div>
+                    <div class="w-full flex justify-between items-center mb-2"><span class="text-gray-400 text-sm font-medium">Subtotal Período</span><span id="valor-original" class="text-white font-bold text-sm">R$ 0,00</span></div>
+                    
+                    <div id="linha-desconto-plano" class="w-full flex justify-between items-center mb-2 hidden"><span class="text-indigo-400 text-sm font-medium">Desconto do Plano</span><span id="valor-desconto-plano" class="text-indigo-400 font-bold text-sm">- R$ 0,00</span></div>
+                    <div id="linha-desconto-cupom" class="w-full flex justify-between items-center mb-2 hidden"><span class="text-emerald-500 text-sm font-medium">Cupom (<span id="cupom-nome"></span>)</span><span id="valor-desconto-cupom" class="text-emerald-500 font-bold text-sm">- R$ 0,00</span></div>
+
+                    <div class="w-full bg-[#121214] rounded-xl p-6 border border-zinc-800 mt-6 shadow-inner">
+                        <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total a Pagar</p>
+                        <h3 id="valor-total" class="text-5xl font-bold text-white tracking-tight">R$ 0,00</h3>
+                    </div>
+                    
+                    <button onclick="irParaPagamento()" id="btn-pagar" class="w-full mt-8 bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-4 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2" disabled>
+                        <i class="fa-solid fa-lock text-sm"></i> Pagar Agora
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let dadosFatura = null;
+        let precoFinal = 0; 
+        let valorDescontoCupom = 0;
+
+        const formatar = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function carregarFatura() {
+            const faturaId = localStorage.getItem('zyper_session_renovacao');
+            if (!faturaId) { alert('Sessão de renovação expirada.'); window.location.href = '/dashboard'; return; }
+            
+            try {
+                // ROTA GET PARA CARREGAR OS DADOS SALVOS NO renovacoes.json
+                const res = await fetch(`/api/renovacao/fatura/${faturaId}`); 
+                
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ erro: "Fatura não encontrada ou JSON inválido." }));
+                    alert(`Falha ao carregar fatura. Status: ${res.status}. Detalhes: ${errorData.erro || res.statusText}`);
+                    window.location.href = '/dashboard';
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (!data.sucesso || !data.fatura) { 
+                    alert('Erro ao carregar fatura. Dados internos ausentes.'); 
+                    window.location.href = '/dashboard'; 
+                    return; 
+                }
+
+                dadosFatura = data.fatura;
+                
+                // 1. Cálculos e Valores
+                precoFinal = dadosFatura.precoTotalPeriodo;
+                
+                // 2. Atualização do DOM (Informações do Produto/Bot)
+                document.getElementById('prod-nome').innerText = dadosFatura.nomeDoBot || "Bot Desconhecido";
+                document.getElementById('periodo-plano').innerText = `${dadosFatura.meses} Meses`;
+                
+                // Atualiza o link de retorno para o cartrenovar.html
+                document.querySelector('button[onclick*="window.location.href=\'/cartrenovar?id=\'"]').onclick = function() {
+                    window.location.href = '/cartrenovar?id=' + dadosFatura.idAppSquarecloud;
+                };
+
+                // Avatar
+                const prodIcon = document.getElementById('prod-icon');
+                prodIcon.innerHTML = `<img src="${dadosFatura.botAvatarUrl}" class="w-full h-full object-cover">`;
+
+                // 3. Atualização do DOM (Resumo de Valores)
+                document.getElementById('valor-base-mensal').innerText = formatar(dadosFatura.precoMensalBase);
+                document.getElementById('valor-original').innerText = formatar(dadosFatura.precoTotalPeriodo); // Subtotal é o preço do período
+                document.getElementById('valor-total').innerText = formatar(precoFinal);
+                document.getElementById('label-plano').innerText = `PLANO ${dadosFatura.planoEscolhido.toUpperCase()}`;
+                
+                document.getElementById('btn-pagar').disabled = false;
+                
+                // Salvar subtotal para aplicação do cupom (sem desconto de cupom)
+                dadosFatura.subtotalSemCupom = precoFinal; 
+
+            } catch (error) { 
+                console.error("Erro ao carregar fatura:", error); 
+                alert("Erro ao conectar com o servidor para buscar a fatura.");
+                window.location.href = '/dashboard';
+            }
+        }
+
+        async function aplicarCupom() {
+            if (!dadosFatura) return;
+
+            const codigo = document.getElementById('cupom-input').value.trim();
+            const msg = document.getElementById('msg-cupom');
+            const btn = document.getElementById('btn-aplicar');
+            if(!codigo) return;
+            
+            btn.innerText = "...";
+            btn.disabled = true;
+
+            try {
+                // Endpoint para validar cupom no seu backend
+                const res = await fetch('/api/cupom', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ codigo, valorBase: dadosFatura.subtotalSemCupom }) });
+                const data = await res.json();
+                
+                // Reseta valores e esconde linha do cupom antes de aplicar
+                precoFinal = dadosFatura.subtotalSemCupom;
+                valorDescontoCupom = 0;
+                document.getElementById('linha-desconto-cupom').classList.add('hidden');
+                
+                if(data.sucesso) {
+                    const desconto = (dadosFatura.subtotalSemCupom * data.porcentagem) / 100;
+                    valorDescontoCupom = desconto;
+                    precoFinal -= desconto;
+
+                    // Atualiza a linha de desconto do cupom
+                    document.getElementById('linha-desconto-cupom').classList.remove('hidden');
+                    document.getElementById('cupom-nome').innerText = codigo.toUpperCase();
+                    document.getElementById('valor-desconto-cupom').innerText = `- ${formatar(desconto)}`;
+                    
+                    msg.className = "text-xs mt-2 text-emerald-500 font-bold";
+                    msg.innerText = `Cupom ${codigo.toUpperCase()} aplicado: -${data.porcentagem}%`;
+                    
+                    // Atualiza total e salva no backend (opcional, dependendo da sua arquitetura)
+                    document.getElementById('valor-total').innerText = formatar(precoFinal);
+                    dadosFatura.precoTotal = precoFinal; // Atualiza o preço final na fatura
+                } else {
+                    msg.className = "text-xs mt-2 text-red-500 font-bold";
+                    msg.innerText = data.erro || 'Cupom inválido.';
+                }
+            } catch (err) { msg.innerText = "Erro ao validar o cupom."; msg.className = "text-xs mt-2 text-red-500 font-bold"; console.error(err); }
+            
+            btn.innerText = "Aplicar";
+            btn.disabled = false;
+        }
+
+        function irParaPagamento() { 
+            const faturaId = localStorage.getItem('zyper_session_renovacao');
+            
+            // Desabilitar botão para feedback visual
+            document.getElementById('btn-pagar').disabled = true;
+            document.getElementById('btn-pagar').innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Preparando...';
+            
+            // ** ATRASO DE 3 SEGUNDOS PARA REDIRECIONAR PARA A TELA DE PAGAMENTO **
+            setTimeout(() => {
+                // CORREÇÃO AQUI: Redireciona para o pagamentofatura
+                window.location.href = '/pagamentofatura?faturaId=' + faturaId; 
+            }, 3000); // 3 segundos
+        }
+
+        // --- MENU DROPDOWN NO CHECKOUT ---
+        const user = JSON.parse(localStorage.getItem('zyper_user'));
+        const headerUserInfo = document.getElementById('header-user-info');
+
+        if(user) {
+            const avatar = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            headerUserInfo.innerHTML = `
+                <button onclick="document.getElementById('checkout-user-menu').classList.toggle('active')" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full hover:bg-white/5 hover:border-white/20 transition group">
+                    <img src="${avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover">
+                    <div class="text-left">
+                        <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                        <p class="text-[10px] text-zinc-500">Checkout Seguro</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs text-zinc-600 group-hover:text-white transition ml-2"></i>
+                </button>
+                <div id="checkout-user-menu" class="dropdown-menu absolute top-full right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                    <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                    <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-gear w-4"></i> Minha Conta</a>
+                    <div class="h-px bg-zinc-800 my-2"></div>
+                    <button onclick="localStorage.removeItem('zyper_user'); window.location.href='/login.html'" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-arrow-right-from-bracket w-4"></i> Sair</button>
+                </div>
+            `;
+            // Fecha ao clicar fora
+            window.onclick = function(event) {
+                if (!event.target.closest('#header-user-info')) {
+                    const menu = document.getElementById('checkout-user-menu');
+                    if(menu) menu.classList.remove('active');
+                }
+            }
+        }
+        
+        // Inicia o carregamento dos dados da fatura
+        carregarFatura();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

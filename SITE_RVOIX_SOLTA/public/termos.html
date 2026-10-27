@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Serviço - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* BLINDAGEM CSS */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        body.loaded { visibility: visible; opacity: 1; }
+
+        #global-loader {
+            visibility: visible; opacity: 1; position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #050505; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+        }
+
+        /* EFEITOS DE FUNDO */
+        .aura { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%); filter: blur(80px); z-index: -1; pointer-events: none; }
+        .aura-1 { top: -10%; left: -10%; animation: float 20s infinite alternate; }
+        .aura-2 { bottom: -10%; right: -10%; animation: float 25s infinite alternate-reverse; }
+        @keyframes float { from { transform: translate(0, 0); } to { transform: translate(100px, 50px); } }
+
+        .bg-grid { 
+            position: fixed; inset: 0; z-index: -2; 
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+        }
+
+        /* CARDS */
+        .content-card {
+            background-color: #0a0a0a; 
+            border: 1px solid #1f1f23;
+            border-radius: 1.5rem;
+            transition: border-color 0.3s ease;
+        }
+        .content-card:hover { border-color: #7c3aed; }
+
+        .alert-box {
+            background-color: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2); 
+            color: #d1d5db;
+        }
+        .check-item { border-left: 3px solid #7c3aed; background: rgba(124, 58, 237, 0.03); }
+
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="global-loader">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-purple-600"></i>
+        <p class="text-zinc-500 text-sm font-mono animate-pulse tracking-widest uppercase">Termos</p>
+    </div>
+
+    <div class="aura aura-1"></div>
+    <div class="aura aura-2"></div>
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-purple-500">Applications</span></span>
+        </div>
+
+        <nav class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="/" class="hover:text-white transition">Início</a>
+            <a href="planos" class="hover:text-white transition">Planos</a>
+            <a href="/termos" class="text-white transition">Termos</a> 
+            <a href="/status" class="hover:text-white transition">Status</a>
+        </nav>
+
+        <div id="auth-area" class="relative"></div>
+    </header>
+
+    <main class="flex-grow w-full max-w-4xl mx-auto px-6 py-12 relative z-10">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-2 tracking-tighter">Regras e <span class="text-purple-500">Diretrizes</span></h1>
+            <p class="text-zinc-500 text-lg">Documentação legal para o uso dos nossos serviços.</p>
+        </div>
+
+        <div class="alert-box p-6 rounded-3xl mb-12 text-center">
+            <h3 class="font-bold text-lg mb-2 text-purple-400">Atenção</h3>
+            <p class="text-sm text-zinc-300 max-w-2xl mx-auto leading-relaxed">
+                Ao utilizar qualquer serviço da Rovix Applications, você concorda automaticamente com todos os termos descritos abaixo.
+            </p>
+        </div>
+
+        <div class="space-y-8">
+            <div class="content-card p-8">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-white">
+                    <span class="text-purple-500">01.</span> Aceitação
+                </h2>
+                <div class="p-5 rounded-2xl check-item mb-6">
+                    <p class="font-bold text-purple-400 text-sm">CONCORDÂNCIA AUTOMÁTICA</p>
+                    <p class="text-sm text-zinc-400 mt-2">Ao realizar login ou adquirir um plano, você valida este contrato digital.</p>
+                </div>
+                <ul class="text-zinc-400 text-sm space-y-4">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-purple-500"></i> O uso continuado implica na aceitação de novas atualizações.</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-purple-500"></i> Menores de 13 anos não possuem autorização de uso.</li>
+                </ul>
+            </div>
+
+            <div class="content-card p-8">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-white">
+                    <span class="text-purple-500">02.</span> Uso de Software
+                </h2>
+                <p class="text-sm text-zinc-400 leading-relaxed mb-6">Toda a infraestrutura e código fonte são propriedade da Rovix Applications. O cliente recebe apenas o direito de uso conforme o plano contratado.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white/5 p-4 rounded-xl text-xs text-zinc-500 border border-white/5">Proibida a revenda de acesso sem autorização.</div>
+                    <div class="bg-white/5 p-4 rounded-xl text-xs text-zinc-500 border border-white/5">Vedada a exploração de vulnerabilidades.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-16 border-t border-zinc-900 bg-[#050505] relative z-10">
+        <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3 font-bold text-white">
+                <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:25px;height:25px;object-fit:cover;border-radius:999px;">
+                <span class="text-sm uppercase tracking-widest">Rovix Applications</span>
+            </div>
+            <p class="text-zinc-700 text-[10px] uppercase font-bold tracking-widest">© 2025 Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleUserMenu() { document.getElementById('user-menu')?.classList.toggle('active'); }
+        function logout() { localStorage.removeItem('zyper_user'); window.location.href = '/'; }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const userJson = localStorage.getItem('zyper_user');
+            const authArea = document.getElementById('auth-area');
+            
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                authArea.innerHTML = `
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full relative z-50">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-9 h-9 rounded-full object-cover">
+                        <div class="text-left hidden sm:block">
+                            <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-xs text-zinc-600 ml-2"></i>
+                    </button>
+                    <div id="user-menu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                        <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-sign-out w-4"></i> Sair</button>
+                    </div>`;
+            } else {
+                authArea.innerHTML = `<a href="/login.html" class="bg-white text-black px-6 py-2 rounded-xl font-bold text-sm">Entrar</a>`;
+            }
+
+            // Revelar site
+            setTimeout(() => { 
+                document.getElementById('global-loader').style.opacity = '0';
+                setTimeout(() => { 
+                    document.getElementById('global-loader').style.display = 'none';
+                    document.body.classList.add('loaded'); 
+                }, 300);
+            }, 500);
+        });
+
+        window.onclick = (e) => { if (!e.target.closest('#auth-area')) document.getElementById('user-menu')?.classList.remove('active'); }
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

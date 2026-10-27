@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sincronizando - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow: hidden; }
+        
+        body { visibility: hidden; opacity: 0; transition: opacity 0.5s ease; }
+        body.loaded { visibility: visible; opacity: 1; }
+
+        .bg-glow {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a1033 0%, #050505 100%);
+        }
+
+        /* Card Glassmorphism */
+        .glass-card {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* Animação de Anel de Sucesso */
+        .success-ring {
+            position: relative;
+            width: 100px; height: 100px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ring-bg {
+            position: absolute; inset: 0;
+            border: 4px solid rgba(124, 58, 237, 0.1);
+            border-radius: 50%;
+        }
+        .ring-fill {
+            position: absolute; inset: 0;
+            border: 4px solid #7c3aed;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .check-icon {
+            font-size: 2.5rem;
+            color: #7c3aed;
+            display: none; /* Aparece quando "valida" */
+        }
+
+        /* Barra de progresso secreta */
+        .progress-line {
+            position: absolute; bottom: 0; left: 0; height: 4px;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            width: 0%;
+        }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="h-screen flex items-center justify-center p-6">
+
+    <div class="bg-glow"></div>
+
+    <main class="glass-card w-full max-w-md rounded-[3rem] p-10 text-center">
+        <div class="flex justify-center mb-10">
+            <div class="success-ring" id="status-container">
+                <div class="ring-bg"></div>
+                <div class="ring-fill" id="spinner"></div>
+                <i class="fa-solid fa-check check-icon" id="check"></i>
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-black mb-3 tracking-tighter">
+            ACESSO <span class="text-purple-500">LIBERADO</span>
+        </h1>
+        <p class="text-zinc-500 text-sm mb-10 font-medium">Sincronizando sua conta com o servidor...</p>
+
+        <div class="bg-[#0f0f12] border border-white/5 rounded-3xl p-5 flex items-center gap-4 text-left mb-8 shadow-inner">
+            <div class="relative">
+                <img id="user-avatar" src="" class="w-16 h-16 rounded-full border-2 border-purple-600/30 object-cover">
+                <div class="absolute -bottom-1 -right-1 bg-emerald-500 w-5 h-5 rounded-full border-4 border-[#0f0f12]"></div>
+            </div>
+            <div class="overflow-hidden">
+                <h3 id="user-name" class="font-bold text-white truncate text-xl tracking-tight">...</h3>
+                <p class="text-[10px] text-zinc-500 uppercase font-black tracking-widest mt-1">Usuário Verificado</p>
+            </div>
+        </div>
+
+        <div class="space-y-3 mb-8">
+            <div class="flex items-center gap-3 text-sm text-zinc-400 bg-white/5 p-3 rounded-2xl border border-white/5">
+                <i class="fa-brands fa-discord text-purple-500"></i>
+                <span>Adicionado ao Servidor Oficial</span>
+                <i class="fa-solid fa-circle-check text-emerald-500 ml-auto"></i>
+            </div>
+        </div>
+
+        <button onclick="irAgora()" class="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-zinc-200 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-white/5">
+            ACESSAR AGORA
+        </button>
+
+        <div class="progress-line" id="bar"></div>
+    </main>
+
+    <script>
+        // Bloqueios de segurança básicos
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        function irAgora() { window.location.href = '/'; }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const dataStr = params.get('data');
+
+            if (dataStr) {
+                try {
+                    const user = JSON.parse(decodeURIComponent(dataStr));
+                    
+                    document.getElementById('user-name').innerText = user.username;
+                    if(user.avatar) document.getElementById('user-avatar').src = user.avatar;
+
+                    // Salva a sessão local
+                    localStorage.setItem('zyper_user', JSON.stringify(user));
+
+                    // Revela o card
+                    document.body.classList.add('loaded');
+
+                    // Simulação de finalização de sincronia
+                    const bar = document.getElementById('bar');
+                    const spinner = document.getElementById('spinner');
+                    const check = document.getElementById('check');
+
+                    let width = 0;
+                    const interval = setInterval(() => {
+                        width += 1;
+                        bar.style.width = width + '%';
+                        
+                        if (width >= 100) {
+                            clearInterval(interval);
+                            spinner.style.display = 'none';
+                            check.style.display = 'block';
+                            
+                            // Redirecionamento automático após completar
+                            setTimeout(() => { 
+                                window.location.href = '/?login_success=' + encodeURIComponent(JSON.stringify(user)); 
+                            }, 1500);
+                        }
+                    }, 30);
+
+                } catch (e) { window.location.href = '/login.html'; }
+            } else { window.location.href = '/login.html'; }
+        });
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

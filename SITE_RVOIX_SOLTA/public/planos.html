@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #050505; 
+            color: #e4e4e7; 
+            overflow-x: hidden; 
+            scroll-behavior: smooth; 
+            visibility: hidden; 
+            opacity: 0; 
+            transition: opacity 0.4s ease-in-out; 
+        }
+        body.loaded { visibility: visible; opacity: 1; }
+
+        /* --- BACKGROUND & PARTICLES --- */
+        #canvas-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .bg-grid { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; 
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(ellipse at center, black, transparent 90%);
+        }
+
+        /* --- CARDS ESTILO ZYPER/NEVERMISS --- */
+        .zyper-card {
+            background: #0d0d0f;
+            border: 1px solid #1c1c1f;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+        }
+
+        /* Aura Roxa (Destaque) */
+        .zyper-card-featured {
+            border: 1px solid #5865F2;
+            background: linear-gradient(180deg, rgba(88, 101, 242, 0.03) 0%, #0d0d0f 100%);
+            box-shadow: 0 0 30px -10px rgba(88, 101, 242, 0.3);
+        }
+
+        /* Aura Verde (Trial) */
+        .zyper-card-trial {
+            border: 1px solid #10b981;
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.02) 0%, #0d0d0f 100%);
+            box-shadow: 0 0 30px -10px rgba(16, 185, 129, 0.25);
+        }
+
+        .badge-glow {
+            background: #5865f2;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+            text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: 1px;
+            padding: 4px 16px; border-radius: 99px; color: white;
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+        }
+
+        .badge-trial {
+            background: #10b981;
+            text-transform: uppercase; font-size: 10px; font-weight: 800;
+            padding: 4px 12px; border-radius: 99px; color: white;
+            position: absolute; top: 20px; left: 20px;
+        }
+
+        /* --- BOTÕES --- */
+        .btn-adquirir {
+            background-color: #5865F2; color: white; font-weight: 800; font-size: 14px; padding: 14px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+            transition: all 0.2s ease;
+        }
+        .btn-adquirir:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3); }
+
+        .btn-disabled {
+            background: #161618; border: 1px solid #232326; color: #52525b;
+            font-weight: 700; font-size: 13px; padding: 14px; border-radius: 12px;
+            width: 100%; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+    <canvas id="canvas-particles"></canvas>
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-[#5865F2]">Applications</span></span>
+        </div>
+        <nav class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="/" class="hover:text-white transition">Início</a>
+            <a href="planos" class="text-white">Planos</a>
+            <a href="/sobre" class="hover:text-white transition">Sobre</a>
+            <a href="/status" class="hover:text-white transition">Status</a>
+        </nav>
+        <div id="auth-area" class="relative"></div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-8 py-20 z-10 relative flex-grow w-full">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tighter">Escolha o plano ideal <span class="text-[#5865F2]">para você</span></h2>
+            <p class="text-zinc-500 text-lg">Soluções flexíveis para negócios em crescimento e empresas em expansão.</p>
+        </div>
+
+        <div id="grid-produtos" class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-32">
+            <div class="zyper-card zyper-card-trial p-8">
+                <div class="badge-trial">Gratuito</div>
+                <div class="text-left mb-8 mt-6">
+                    <h3 class="text-3xl font-bold text-white mb-2">Trial</h3>
+                    <p class="text-zinc-500 text-sm mb-4">Teste todas as funcionalidades por 24 horas gratuitamente.</p>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-4xl font-black text-white">R$ 0</span>
+                        <span class="text-zinc-500 text-sm">/24h</span>
+                    </div>
+                </div>
+                <div class="flex-grow space-y-4 mb-10">
+                    <div class="flex items-center gap-3 text-sm text-zinc-400"><i class="fa-solid fa-check text-[#10b981]"></i><span>Sistema de vendas completo</span></div>
+                    <div class="flex items-center gap-3 text-sm text-zinc-400"><i class="fa-solid fa-check text-[#10b981]"></i><span>Sistema de ticket profissional</span></div>
+                    <div class="flex items-center gap-3 text-sm text-zinc-400"><i class="fa-solid fa-check text-[#10b981]"></i><span>OAuth2 e proteção anti-fraude</span></div>
+                </div>
+                <button disabled class="btn-disabled">Indisponível</button>
+            </div>
+            </div>
+
+        <div class="mt-32 text-center">
+            <span class="text-[#5865F2] font-bold text-xs uppercase tracking-[0.3em] mb-4 block">⚡ Por que Rovix Applications?</span>
+            <h2 class="text-4xl font-extrabold text-white mb-4">Recursos que Fazem a Diferença</h2>
+            <p class="text-zinc-500 max-w-2xl mx-auto mb-16">Tecnologia de ponta que transforma seu servidor em uma máquina de vendas e suporte automatizado.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left max-w-6xl mx-auto">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-robot"></i></div>
+                    <h4 class="text-white font-bold text-lg">Automação Total</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Configure uma vez e deixe o bot trabalhar por você.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-brain"></i></div>
+                    <h4 class="text-white font-bold text-lg">IA nos Tickets</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Respostas inteligentes que reduzem o suporte manual.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-box-archive"></i></div>
+                    <h4 class="text-white font-bold text-lg">Gestão de Estoque</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Alertas automáticos e bloqueio de vendas sem estoque.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4 class="text-white font-bold text-lg">Segurança Máxima</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">OAuth2 e rastreamento de IP para sua proteção.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <h4 class="text-white font-bold text-lg">Loja Profissional</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Painel visual moderno com envio instantâneo.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#5865F2] text-xl shadow-lg"><i class="fa-solid fa-chart-line"></i></div>
+                    <h4 class="text-white font-bold text-lg">Analytics Real Time</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Métricas de vendas e tickets ao vivo na dashboard.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-40 mb-32 max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-white">Perguntas Frequentes</h2>
+                <div class="h-1 w-20 bg-[#5865F2] mx-auto mt-4 rounded-full"></div>
+            </div>
+            <div class="space-y-4">
+                <div class="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-[#5865F2]/50 transition-all cursor-pointer">
+                    <div class="flex justify-between items-center"><h5 class="text-white font-bold">Como funciona a entrega?</h5><i class="fa-solid fa-chevron-down text-zinc-500 group-hover:text-[#5865F2] transition-colors"></i></div>
+                    <p class="text-zinc-500 text-sm mt-4 hidden group-hover:block leading-relaxed">O produto é entregue instantaneamente após a confirmação do pagamento.</p>
+                </div>
+                <div class="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-[#5865F2]/50 transition-all cursor-pointer">
+                    <div class="flex justify-between items-center"><h5 class="text-white font-bold">O sistema é seguro?</h5><i class="fa-solid fa-chevron-down text-zinc-500 group-hover:text-[#5865F2] transition-colors"></i></div>
+                    <p class="text-zinc-500 text-sm mt-4 hidden group-hover:block leading-relaxed">Sim, utilizamos criptografia OAuth2 e segurança avançada em todos os bots.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-10 border-t border-zinc-900 text-center text-zinc-700 text-xs uppercase tracking-widest">© 2026 Rovix Applications.</footer>
+
+    <script>
+        const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('active'); }
+        function logout() { localStorage.removeItem('zyper_user'); window.location.href = '/'; }
+
+        // --- PARTÍCULAS ---
+        const canvas = document.getElementById('canvas-particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.size = Math.random()*1.2+0.5; this.speed = Math.random()*0.4+0.1; this.opacity = Math.random()*0.3; }
+            update() { this.y += this.speed; if (this.y > canvas.height) this.reset(); }
+            draw() { ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+        }
+        function initParticles() { particles = []; for (let i = 0; i < 60; i++) particles.push(new Particle()); }
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); initParticles(); animate();
+
+        // --- CARREGAR PRODUTOS ---
+        async function carregarProdutos() {
+            const container = document.getElementById('grid-produtos');
+            try {
+                const resposta = await fetch('/api/produtos');
+                const produtos = await resposta.json();
+                produtos.forEach(prod => {
+                    let valorMensal = prod.precos?.mensal ?? prod.preco ?? 0;
+                    let isDestaque = prod.destaque === true;
+                    let botaoHtml = prod.desenvolvimento 
+                        ? `<button disabled class="btn-disabled"><i class="fa-solid fa-clock"></i> Em Breve</button>`
+                        : `<button onclick="iniciarCheckout('${prod.id}')" class="btn-adquirir">Adquirir Agora <i class="fa-solid fa-bolt"></i></button>`;
+
+                    container.innerHTML += `
+                        <div class="zyper-card ${isDestaque ? 'zyper-card-featured p-10 md:-translate-y-4' : 'p-8'}">
+                            ${isDestaque ? '<div class="badge-glow">Recomendado</div>' : ''}
+                            <div class="text-center mb-8">
+                                <h3 class="text-2xl font-bold text-white mb-2">${prod.nome}</h3>
+                                <div class="flex items-baseline justify-center gap-1">
+                                    <span class="text-4xl font-black text-white">${valorMensal > 0 ? formatarMoeda(valorMensal).replace(',00', '') : 'Grátis'}</span>
+                                    ${valorMensal > 0 ? '<span class="text-zinc-500 text-sm font-bold">/mês</span>' : ''}
+                                </div>
+                                <p class="text-zinc-500 text-xs mt-4 leading-relaxed px-4">${prod.subtitulo || "Recursos profissionais."}</p>
+                            </div>
+                            <div class="flex-grow space-y-4 mb-10">
+                                ${prod.descricao.split('\n').map(l => l.trim() ? `<div class="flex items-center gap-3 text-sm text-zinc-400"><i class="fa-solid fa-check ${isDestaque ? 'text-[#5865F2]' : 'text-zinc-700'} text-[12px]"></i><span>${l}</span></div>` : '').join('')}
+                            </div>
+                            <div class="mt-auto">${botaoHtml}</div>
+                        </div>`;
+                });
+            } catch (e) { console.error("Erro API"); }
+        }
+
+        // --- AUTH ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const userJson = localStorage.getItem('zyper_user');
+            const authArea = document.getElementById('auth-area');
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                authArea.innerHTML = `
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-3 bg-white/5 border border-white/10 pr-4 pl-1.5 py-1.5 rounded-full relative z-50">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-8 h-8 rounded-full border border-[#5865F2]/20">
+                        <div class="text-left hidden sm:block"><p class="text-xs font-bold text-white leading-tight">${user.username}</p></div>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-zinc-500 ml-2"></i>
+                    </button>
+                    <div id="user-menu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#0d0d0f] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                        <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-user-gear w-4"></i> Minha Conta</a>
+                        <div class="h-px bg-zinc-800 my-2"></div>
+                        <button onclick="logout()" class="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition"><i class="fa-solid fa-sign-out w-4"></i> Sair</button>
+                    </div>`;
+            } else { 
+                authArea.innerHTML = `<a href="/login.html" class="bg-[#5865F2] text-white px-6 py-2 rounded-xl font-bold text-sm hover:brightness-110 transition">Entrar</a>`; 
+            }
+            carregarProdutos();
+            document.body.classList.add('loaded');
+        });
+        function iniciarCheckout(id) { window.location.href = localStorage.getItem('zyper_user') ? `/checkout?id=${id}` : '/login.html'; }
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

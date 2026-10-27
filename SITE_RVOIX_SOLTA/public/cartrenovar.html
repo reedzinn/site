@@ -1,0 +1,431 @@
+<script>
+    // Bloqueia botão direito
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Bloqueia teclas de atalho (F12, Ctrl+Shift-I, Ctrl-U)
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123) { // F12
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift-I
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift-C
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift-J
+            return false;
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl-U (Ver Fonte)
+            return false;
+        }
+    }
+</script>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renovar Aplicação - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -1;
+            background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+        /* Botões dos Planos */
+        .btn-plano-active {
+            background-color: #6366f1;
+            color: white; border: 1px solid #6366f1;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+        .btn-plano-inactive {
+            background-color: #09090b; color: #71717a; border: 1px solid #27272a;
+        }
+        .card-glass { background-color: #09090b; border: 1px solid #27272a; }
+        
+        /* Dropdown CSS */
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        
+        /* Avatar Container */
+        .bot-avatar {
+            width: 80px; 
+            height: 80px; 
+            border-radius: 16px; 
+            background-color: #1f2937; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #3f3f46;
+        }
+        /* Classe para esconder elementos sem quebrar o layout */
+        .hidden-value { display: none !important; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white">
+            
+            <div class="w-8 h-8 bg-black border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg">
+                <span class="text-xs font-bold text-white tracking-tighter">PS</span>
+            </div>
+            
+            Rovix Applications
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div id="header-user-info" class="hidden md:flex relative"></div>
+            
+            <a href="/dashboard" class="text-sm text-zinc-500 hover:text-white transition flex items-center gap-2">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center pt-10 px-4 pb-20 z-10">
+
+        <h1 class="text-3xl font-bold text-white mb-6">Renovar Aplicação</h1>
+
+        <div class="flex items-center gap-4 mb-12 text-sm font-bold tracking-wide">
+            <div class="flex flex-col items-center gap-2 text-white">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(79,70,229,0.5)]">1</div>
+                <span>CONFIGURAR</span>
+            </div>
+            <div class="w-16 h-[2px] bg-zinc-800"></div>
+            <div class="flex flex-col items-center gap-2 text-zinc-600">
+                <div class="w-10 h-10 rounded-xl border border-zinc-800 flex items-center justify-center bg-zinc-900">2</div>
+                <span>REVISÃO</span>
+            </div>
+            <div class="w-16 h-[2px] bg-zinc-800"></div>
+            <div class="flex flex-col items-center gap-2 text-zinc-600">
+                <div class="w-10 h-10 rounded-xl border border-zinc-800 flex items-center justify-center bg-zinc-900">3</div>
+                <span>PAGAMENTO</span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button onclick="mudarPlano('mensal')" id="btn-mensal" class="btn-plano-active px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2">
+                1 Mês
+            </button>
+            <button onclick="mudarPlano('trimestral')" id="btn-trimestral" class="btn-plano-inactive px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 hover:border-zinc-600">
+                3 Meses
+            </button>
+            <button onclick="mudarPlano('anual')" id="btn-anual" class="btn-plano-inactive px-6 py-2 rounded-full text-sm font-bold transition flex items-center gap-2 hover:border-zinc-600">
+                12 Meses
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 w-full max-w-5xl">
+            
+            <div class="md:col-span-7">
+                <h2 class="text-2xl font-bold text-white mb-6">Detalhes da Renovação</h2>
+                <div class="card-glass rounded-3xl p-8 flex flex-col gap-6">
+                    <div class="flex items-start gap-5">
+                        <div id="info-avatar" class="bot-avatar">
+                            <i class="fa-solid fa-sync fa-spin text-2xl text-zinc-500"></i>
+                        </div>
+                        <div>
+                            <h3 id="info-nome" class="text-2xl font-bold text-white mb-1">Carregando Nome do Bot...</h3>
+                            <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">Renovação de Licença</span>
+                        </div>
+                    </div>
+                    <div class="h-[1px] bg-zinc-800 w-full"></div>
+                    <div>
+                        <h4 class="text-gray-400 text-xs font-bold uppercase mb-3">Informações</h4>
+                        <p id="info-desc" class="text-gray-400 text-sm leading-relaxed">Seu bot será renovado com o plano base: <span id="produto-nome-detalhe" class="font-bold text-white">...</span>.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-300"><i class="fa-solid fa-circle-check text-emerald-500"></i> Renovação Imediata</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300"><i class="fa-solid fa-circle-check text-emerald-500"></i> Mantém Configurações</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-5">
+                <div class="card-glass rounded-3xl p-8 flex flex-col h-full relative">
+                    <div class="flex flex-col items-center text-center mb-8">
+                        <h2 class="text-xl font-bold text-white mb-6">Resumo da Fatura</h2>
+                        <div class="w-full bg-zinc-900/50 rounded-xl p-4 flex items-center gap-4 border border-zinc-800 text-left">
+                            <div id="resumo-icon" class="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-sync fa-spin text-indigo-500"></i>
+                            </div>
+                            <div>
+                                <p id="resumo-nome" class="font-bold text-white text-sm">...</p>
+                                <p id="label-plano" class="text-xs text-gray-500">Plano Mensal</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div id="linha-base-mensal" class="flex justify-between items-center text-sm text-gray-400 hidden-value"><span>Valor Base Mensal</span><span id="valor-base-mensal">R$ 0,00</span></div>
+                        
+                        <div class="flex justify-between items-center text-sm text-gray-400"><span>Preço do Período</span><span id="valor-subtotal">R$ 0,00</span></div>
+                        
+                        <div id="linha-desconto" class="flex justify-between items-center text-sm text-indigo-400 hidden-value"><span>Desconto do Plano</span><span id="valor-desconto">R$ 0,00</span></div>
+                        
+                        <div class="h-[1px] bg-zinc-800 w-full my-2"></div>
+                        
+                        <div class="flex justify-between items-center text-white font-bold text-lg"><span>Total</span><span id="valor-total">R$ 0,00</span></div>
+                    </div>
+
+                    <button onclick="salvarEContinuar()" id="btn-continuar" class="w-full mt-auto bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+                        Continuar <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let botRenovacao = null; 
+        let planoAtual = 'mensal';
+        
+        // ** CONFIGURAÇÃO DE PLANOS (Preços Fixos) **
+        const PRECOS_FIXOS = {
+            precoMensal: 5.99,
+            precoTrimestral: 18.00,
+            precoAnual: 65.00
+        };
+
+        const PLANOS_RENOVACAO = {
+            'mensal': { meses: 1, label: '1 Mês', precoKey: 'precoMensal' },
+            'trimestral': { meses: 3, label: '3 Meses', precoKey: 'precoTrimestral' },
+            'anual': { meses: 12, label: '12 Meses', precoKey: 'precoAnual' }   
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const botId = urlParams.get('id'); // ID do bot (squareId)
+        
+        const formatar = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        function calcularNovaDataExpiracao(meses) {
+            const dataBase = new Date(); 
+            dataBase.setMonth(dataBase.getMonth() + meses);
+            return dataBase.toISOString();
+        }
+
+        // 1. Carregar Dados do Bot para Renovação
+        async function carregarDados() {
+            if (!botId) {
+                alert('ID do bot de renovação não fornecido. Retornando ao dashboard.');
+                window.location.href = '/dashboard';
+                return;
+            }
+
+            try {
+                // API APENAS PARA OBTER O NOME E AVATAR DO BOT
+                const res = await fetch(`/api/bot/renovacao-data/${botId}`); 
+                
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ erro: "Erro de servidor ou JSON inválido." }));
+                    alert(`Falha ao carregar dados. Status: ${res.status}. Detalhes: ${errorData.erro || res.statusText}`);
+                    window.location.href = '/dashboard';
+                    return;
+                }
+
+                const data = await res.json();
+                
+                // Validação mínima para garantir que o botData básico está presente
+                if (!data.sucesso || !data.botData || !data.botData.nome) { 
+                    alert('Erro ao carregar dados essenciais. Verifique o formato de retorno do servidor.'); 
+                    window.location.href = '/dashboard'; 
+                    return; 
+                }
+
+                // OBTÉM DADOS DE IDENTIFICAÇÃO E FORÇA PREÇOS FIXOS
+                botRenovacao = {
+                    nome: data.botData.nome,
+                    produtoNome: data.botData.produtoNome || "Serviço Base",
+                    avatarUrl: data.botData.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png',
+                    donoId: data.botData.donoId || 'ID_NULO', 
+                    donoEmail: data.botData.donoEmail || 'email_nulo@exemplo.com', 
+                    precos: PRECOS_FIXOS // Força os preços fixos
+                };
+                
+                // Atualiza o DOM com os dados do bot (Nome e Avatar EXATOS)
+                document.getElementById('info-nome').innerText = botRenovacao.nome;
+                document.getElementById('resumo-nome').innerText = botRenovacao.nome;
+                document.getElementById('produto-nome-detalhe').innerText = botRenovacao.produtoNome;
+                
+                // Configura Avatar e Ícone
+                const avatarContainer = document.getElementById('info-avatar');
+                const resumoIconContainer = document.getElementById('resumo-icon');
+                
+                avatarContainer.innerHTML = `<img src="${botRenovacao.avatarUrl}" class="w-full h-full object-cover rounded-2xl">`;
+                resumoIconContainer.innerHTML = `<img src="${botRenovacao.avatarUrl}" class="w-full h-full object-cover rounded-lg">`;
+
+                // Define o preço e atualiza a interface com o plano inicial (Mensal)
+                atualizarValores();
+
+            } catch (erro) { 
+                console.error("Erro de conexão com o servidor:", erro);
+                alert("Falha na conexão. Verifique se o servidor está rodando e o endpoint /api/bot/renovacao-data/ está acessível."); 
+                window.location.href = '/dashboard';
+            }
+        }
+
+        // 2. Mudar Plano
+        function mudarPlano(novoPlano) {
+            planoAtual = novoPlano;
+            
+            ['mensal', 'trimestral', 'anual'].forEach(p => {
+                const btn = document.getElementById(`btn-${p}`);
+                if (btn) {
+                    if (p === novoPlano) {
+                        btn.classList.replace('btn-plano-inactive', 'btn-plano-active');
+                        btn.classList.remove('hover:border-zinc-600');
+                    } else {
+                        btn.classList.replace('btn-plano-active', 'btn-plano-inactive');
+                        btn.classList.add('hover:border-zinc-600');
+                    }
+                }
+            });
+            atualizarValores();
+        }
+
+        // 3. Atualizar Preços
+        function atualizarValores() {
+            if (!botRenovacao || !botRenovacao.precos) return;
+
+            const planoSelecionado = PLANOS_RENOVACAO[planoAtual];
+            const precoKey = planoSelecionado.precoKey;
+            
+            // O VALOR TOTAL É O PREÇO FIXO CORRESPONDENTE
+            const valorTotal = botRenovacao.precos[precoKey];
+            const nomePlano = planoSelecionado.label;
+
+            // 4. Atualização do DOM
+            document.getElementById('label-plano').innerText = `Período: ${nomePlano}`;
+            
+            // Atualiza Subtotal e Total com o preço do plano
+            document.getElementById('valor-subtotal').innerText = formatar(valorTotal);
+            document.getElementById('valor-total').innerText = formatar(valorTotal);
+            
+            // Esconde as linhas que não são usadas nesta visualização
+            document.getElementById('linha-base-mensal').classList.add('hidden-value');
+            document.getElementById('linha-desconto').classList.add('hidden-value');
+        }
+
+        // 4. Salvar e Continuar (Com Atraso)
+        async function salvarEContinuar() {
+            if (!botRenovacao) { alert('Aguarde o carregamento dos dados do bot.'); return; }
+
+            const btn = document.getElementById('btn-continuar');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
+            btn.disabled = true;
+
+            // CAMPOS ESSENCIAIS COLETADOS
+            const idAppSquarecloud = botId;
+            const nomeDoBot = botRenovacao.nome;
+            const idDoDono = botRenovacao.donoId;
+            const emailDoDono = botRenovacao.donoEmail;
+            
+            const planoSelecionado = PLANOS_RENOVACAO[planoAtual];
+            const precoTotalNumerico = botRenovacao.precos[planoSelecionado.precoKey];
+            const dataExpiracao = calcularNovaDataExpiracao(planoSelecionado.meses);
+
+            try {
+                // Objeto de dados completo para salvar no 'renovacao.json'
+                const dadosRenovacao = {
+                    idAppSquarecloud,
+                    nomeDoBot,
+                    idDoDono,
+                    emailDoDono,
+                    planoEscolhido: planoAtual,
+                    meses: planoSelecionado.meses,
+                    precoMensalBase: PRECOS_FIXOS.precoMensal, 
+                    precoTotalPeriodo: precoTotalNumerico, 
+                    dataExpiracao: dataExpiracao, 
+                    timestampRenovacao: new Date().toISOString()
+                };
+
+                // CHAMA A ROTA DE SALVAR NO CARRINHO
+                const res = await fetch('/api/renovacao/carrinho', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosRenovacao)
+                });
+                
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({ erro: "Erro ao criar fatura." }));
+                    alert("Erro ao salvar carrinho: " + (errorData.erro || res.statusText));
+                    btn.disabled = false;
+                    btn.innerHTML = 'Tentar Novamente <i class="fa-solid fa-arrow-right"></i>';
+                    return;
+                }
+
+                const data = await res.json();
+                
+                if(data.sucesso) { 
+                    localStorage.setItem('zyper_session_renovacao', data.faturaId);
+                    
+                    // ** ATRASO DE 3 SEGUNDOS **
+                    setTimeout(() => { 
+                        window.location.href = '/revisaofatura'; 
+                    }, 3000); 
+                } else {
+                    alert("Erro ao iniciar a renovação: " + (data.erro || 'Erro desconhecido.'));
+                    btn.disabled = false;
+                    btn.innerHTML = 'Continuar <i class="fa-solid fa-arrow-right"></i>';
+                }
+            } catch (erro) {
+                console.error(erro);
+                alert("Erro de rede ao salvar a renovação. Tente novamente.");
+                btn.disabled = false;
+                btn.innerHTML = 'Tentar Novamente <i class="fa-solid fa-arrow-right"></i>';
+            }
+        }
+
+
+        // 5. Menu Usuário (Lógica mantida)
+        const user = JSON.parse(localStorage.getItem('zyper_user'));
+        const headerUserInfo = document.getElementById('header-user-info');
+
+        if(user) {
+            const avatar = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            headerUserInfo.innerHTML = `
+                <button onclick="document.getElementById('checkout-user-menu').classList.toggle('active')" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full hover:bg-white/5 hover:border-white/20 transition group">
+                    <img src="${avatar}" class="w-8 h-8 rounded-full border border-white/10 object-cover">
+                    <div class="text-left">
+                        <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                        <p class="text-[10px] text-zinc-500">Checkout Seguro</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs text-zinc-600 group-hover:text-white transition ml-2"></i>
+                </button>
+
+                <div id="checkout-user-menu" class="dropdown-menu absolute top-full right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                    <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Minhas Aplicações</a>
+                    <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-gear w-4"></i> Minha Conta</a>
+                    <div class="h-px bg-zinc-800 my-2"></div>
+                    <button onclick="localStorage.removeItem('zyper_user'); window.location.href='/login.html'" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-arrow-right-from-bracket w-4"></i> Sair</button>
+                </div>
+            `;
+            // Fecha ao clicar fora
+            window.onclick = function(event) {
+                if (!event.target.closest('#header-user-info')) {
+                    const menu = document.getElementById('checkout-user-menu');
+                    if(menu) menu.classList.remove('active');
+                }
+            }
+        }
+
+        // Inicia o carregamento de dados e a configuração
+        carregarDados();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

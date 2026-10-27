@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* Preloader Control */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        body.loaded { visibility: visible; opacity: 1; }
+        
+        #global-loader {
+            visibility: visible; opacity: 1; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #050505; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+        }
+
+        /* Efeitos de Fundo */
+        .aura { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%); filter: blur(80px); z-index: -1; pointer-events: none; }
+        .aura-1 { top: -10%; left: -10%; animation: float 20s infinite alternate; }
+        .aura-2 { bottom: -10%; right: -10%; animation: float 25s infinite alternate-reverse; }
+        @keyframes float { from { transform: translate(0, 0); } to { transform: translate(100px, 50px); } }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -2; 
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+        }
+
+        /* Estilo dos Cards */
+        .glass-card {
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        .info-box:hover { background: rgba(124, 58, 237, 0.05); border-color: rgba(124, 58, 237, 0.2); }
+
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="global-loader">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-purple-600"></i>
+        <p class="text-zinc-500 text-sm font-mono animate-pulse tracking-widest uppercase mt-4">Minha Conta</p>
+    </div>
+
+    <div class="aura aura-1"></div>
+    <div class="aura aura-2"></div>
+    <div class="bg-grid"></div>
+
+    <nav class="w-full border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+                <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+                <span class="hidden sm:inline">Rovix <span class="text-purple-500">Applications</span></span>
+            </div>
+
+            <div class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+                <a href="/" class="hover:text-white transition">Início</a>
+                <a href="/planos" class="hover:text-white transition">Produtos</a>
+                <a href="/sobre" class="hover:text-white transition">Sobre</a>
+                <a href="/status" class="hover:text-white transition">Status</a>
+            </div>
+
+            <div id="auth-container-placeholder" class="relative">
+                </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-6 py-12 relative z-10">
+        
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tighter uppercase">Painel da <span class="text-purple-500">Conta</span></h1>
+            <p class="text-zinc-500">Controle suas preferências e detalhes de segurança.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-card p-8 text-center border-t-4 border-t-purple-600">
+                    <div class="relative inline-block mb-4">
+                        <img id="profile-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-32 h-32 rounded-full border-4 border-[#121214] shadow-2xl object-cover mx-auto">
+                        <div class="absolute bottom-1 right-1 w-6 h-6 bg-emerald-500 border-4 border-[#0a0a0a] rounded-full"></div>
+                    </div>
+                    <h2 id="profile-username" class="text-2xl font-bold tracking-tight">...</h2>
+                    <p id="profile-email" class="text-zinc-500 text-sm mb-6 truncate px-2">...</p>
+                    <span id="account-status" class="inline-block text-[10px] font-black text-purple-400 bg-purple-400/10 px-4 py-1.5 rounded-full border border-purple-400/20 uppercase tracking-widest">
+                        Discord Link Active
+                    </span>
+                </div>
+
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-3 py-4 glass-card text-red-500 hover:bg-red-500/5 transition font-bold text-sm">
+                    <i class="fa-solid fa-power-off"></i> Encerrar Sessão
+                </button>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-card p-8">
+                    <h3 class="text-lg font-bold mb-8 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center text-purple-500">
+                            <i class="fa-solid fa-user-gear text-sm"></i>
+                        </div>
+                        Dados Cadastrais
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="info-box p-5">
+                            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">E-mail</p>
+                            <p id="detail-email" class="text-white font-medium truncate">...</p>
+                        </div>
+                        <div class="info-box p-5">
+                            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Identificador</p>
+                            <p id="detail-discord-id" class="text-zinc-400 font-mono text-sm tracking-tighter">...</p>
+                        </div>
+                        <div class="info-box p-5">
+                            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Username</p>
+                            <p id="detail-discord-username" class="text-white font-medium">...</p>
+                        </div>
+                        <div class="info-box p-5">
+                            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Verificação</p>
+                            <p class="text-emerald-400 font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-shield-check"></i> Protegido
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold mb-1">Aplicações Ativas</h3>
+                        <p class="text-zinc-500 text-sm">Gerencie seus bots e serviços contratados.</p>
+                    </div>
+                    <a href="/dashboard" class="w-full md:w-auto text-center bg-white text-black px-8 py-3 rounded-xl font-bold text-sm hover:bg-zinc-200 transition">
+                        Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-20 border-t border-zinc-900 bg-[#050505] relative z-10">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 text-left">
+            <div class="col-span-1">
+                <div class="flex items-center gap-3 font-bold text-xl text-white mb-6">
+                    <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:30px;height:30px;object-fit:cover;border-radius:999px;">
+                    <span>Rovix Applications</span>
+                </div>
+                <p class="text-zinc-500 text-sm leading-relaxed">Infraestrutura cloud proprietária para comunidades de alta performance.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 col-span-1 md:col-span-3 gap-8 md:justify-items-end">
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Produtos</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="planos" class="hover:text-purple-500 transition">Planos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="/termos" class="hover:text-purple-500 transition">Termos</a></li>
+                        <li><a href="/faq" class="hover:text-purple-500 transition">Dúvidas</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Social</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="https://discord.gg/rovix" class="hover:text-purple-500 transition flex items-center gap-2"><i class="fa-brands fa-discord"></i> Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-8 mt-20 pt-8 border-t border-zinc-900 text-center text-zinc-700 text-xs">
+            © 2025 Rovix Applications • Premium Infrastructure.
+        </div>
+    </footer>
+
+    <script>
+        function revelarSite() {
+            const loader = document.getElementById('global-loader');
+            setTimeout(() => { 
+                if(loader) loader.style.opacity = '0'; 
+                setTimeout(() => { 
+                    if(loader) loader.style.display = 'none'; 
+                    document.body.classList.add('loaded'); 
+                }, 300); 
+            }, 600);
+        }
+
+        function toggleMenu() { 
+            const menu = document.getElementById('user-dropdown');
+            if(menu) menu.classList.toggle('active'); 
+        }
+
+        function logout() { 
+            localStorage.removeItem('zyper_user'); 
+            window.location.href = '/login.html'; 
+        }
+
+        function setupAuthUI() {
+            const userJson = localStorage.getItem('zyper_user');
+            
+            // Se não houver usuário, redireciona (Descomente para produção)
+            // if (!userJson) { window.location.href = '/login.html'; return; }
+            
+            const user = userJson ? JSON.parse(userJson) : { username: "Visitante", avatar: "", email: "user@example.com", discordId: "00000000" };
+            const container = document.getElementById('auth-container-placeholder');
+
+            if (container) {
+                container.innerHTML = `
+                    <button id="user-profile-btn" onclick="toggleMenu()" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full relative z-50 group">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-9 h-9 rounded-full object-cover">
+                        <div class="text-left hidden sm:block">
+                            <p class="text-xs font-bold text-white leading-tight">${user.username}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-zinc-600 group-hover:text-white ml-2 transition"></i>
+                    </button>
+                    <div id="user-dropdown" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50">
+                        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Aplicações</a>
+                        <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-sign-out w-4"></i> Sair</button>
+                    </div>`;
+            }
+
+            // Preencher dados na página
+            const avatarImg = document.getElementById('profile-avatar');
+            const userTitle = document.getElementById('profile-username');
+            const emailText = document.getElementById('profile-email');
+            
+            if(avatarImg) avatarImg.src = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            if(userTitle) userTitle.innerText = user.username;
+            if(emailText) emailText.innerText = user.email || 'Discord Authenticated';
+            
+            document.getElementById('detail-email').innerText = user.email || 'Não informado';
+            document.getElementById('detail-discord-username').innerText = user.username;
+            document.getElementById('detail-discord-id').innerText = user.discordId || user.id || '*******';
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setupAuthUI();
+            revelarSite();
+        });
+
+        // Fechar dropdown ao clicar fora
+        window.onclick = (e) => { 
+            if (!e.target.closest('#auth-container-placeholder')) {
+                document.getElementById('user-dropdown')?.classList.remove('active'); 
+            }
+        }
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

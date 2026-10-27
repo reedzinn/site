@@ -1,0 +1,301 @@
+<script>
+    // 🛡️ CAMADA DE BLINDAGEM PRO
+    (function() {
+        // Bloqueia Context Menu e Atalhos de Inspeção
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || 
+                (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || 
+                (e.ctrlKey && e.keyCode == 85)) return false;
+        };
+
+        // Anti-Debugger Loop (Trava se abrir o console)
+        setInterval(function() { (function(a) {return (function(a) {return (Function('Function(arguments[0]+"' + a + '")()'))})(a)})('debugger')('state'); }, 1000);
+
+        // Previne Arrastar Elementos (Proteção de QR Code)
+        document.addEventListener('dragstart', e => e.preventDefault());
+    })();
+</script>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Seguro - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e4e4e7; user-select: none; }
+        .bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+        .card-glass { background-color: #09090b; border: 1px solid #27272a; }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-yellow { animation: pulseY 2s infinite; }
+        @keyframes pulseY { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+        
+        .step-item { transition: all 0.3s ease; border: 1px solid transparent; }
+        .step-active { background-color: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); }
+        .step-done .step-icon { background-color: #10b981; color: black; border-color: #10b981; }
+        .step-error .step-icon { background-color: #ef4444; color: white; border-color: #ef4444; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-purple-500">Applications</span></span>
+        </div>
+    </header>
+
+    <main id="main-container" class="flex-grow flex flex-col items-center justify-center px-4 pb-20 z-10">
+        <div id="tela-pagamento" class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+            <div class="col-span-2 text-center text-gray-500 py-20">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600 mb-4"></i>
+                <p class="font-medium animate-pulse uppercase tracking-widest text-xs">Sincronizando Sessão Segura...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-setup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-500">
+        <div class="bg-[#09090b] border border-[#27272a] w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden transform scale-95 transition-transform duration-500" id="modal-box">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-800 animate-pulse relative">
+                    <i class="fa-solid fa-rocket text-2xl text-emerald-500"></i>
+                    <div class="absolute inset-0 rounded-full border border-emerald-500/30 animate-ping"></div>
+                </div>
+                <h2 class="text-xl font-bold text-white">Pagamento Confirmado!</h2>
+                <p class="text-sm text-gray-500 mt-1">Estamos configurando sua aplicação na nuvem.</p>
+            </div>
+
+            <div class="space-y-3" id="steps-list">
+                <div id="step-1" class="step-item flex items-center gap-4 p-3 rounded-xl">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs transition-colors duration-300">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Configurando ambiente</h4>
+                        <p class="text-zinc-500 text-xs">Preparando recursos na SquareCloud...</p>
+                    </div>
+                </div>
+                <div id="step-2" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Instalando dependências</h4>
+                        <p class="text-zinc-500 text-xs">Configurando sua aplicação...</p>
+                    </div>
+                </div>
+
+                <div id="step-3" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white text-sm font-bold">Finalizando Deploy</h4>
+                        <p class="text-zinc-500 text-xs">Quase pronto! Redirecionando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-box" class="hidden mt-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center">
+                <p class="text-red-400 text-sm font-bold mb-2">Ops! Algo deu errado.</p>
+                <p id="error-msg" class="text-red-300/70 text-xs mb-3">...</p>
+                <button onclick="location.reload()" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg text-xs font-bold transition">Tentar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔐 LÓGICA BLINDADA
+        const _SESS = localStorage.getItem('zyper_session');
+        const _VAL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        let _CHCK = null, _PROD = null, _CART = null;
+
+        async function iniciarPagamento() {
+            if(!_SESS) return window.location.href = '/'; 
+            
+            try {
+                // Headers de segurança para evitar interceptação simples
+                const secureHeaders = { 'X-Protection-Key': btoa(_SESS) };
+
+                const resCarrinho = await fetch(`/api/carrinho/${_SESS}`);
+                const dataCarrinho = await resCarrinho.json();
+                if(!dataCarrinho.sucesso) return window.location.href = '/';
+                _CART = dataCarrinho.carrinho;
+
+                const resProds = await fetch('/api/produtos');
+                const prods = await resProds.json();
+                _PROD = prods.find(p => p.id === _CART.produtoId);
+
+                if(_CART.statusPagamento === 'aprovado') { 
+                    ativarSistemaAutomatico(); 
+                    return; 
+                }
+
+                const resPix = await fetch('/api/pagamento/pix', {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json', ...secureHeaders}, 
+                    body: JSON.stringify({ sessaoId: _SESS })
+                });
+                const dataPix = await resPix.json();
+
+                if(dataPix.sucesso) { 
+                    renderizarTelaPix(dataPix.pagamento); 
+                    iniciarVerificacao(); 
+                } else { alert('Instabilidade no gateway: ' + dataPix.erro); }
+
+            } catch (err) { console.warn('Integrity check failed'); }
+        }
+
+        function renderizarTelaPix(pagamento) {
+            const planoFormatado = _CART.plano ? (_CART.plano.charAt(0).toUpperCase() + _CART.plano.slice(1)) : "Mensal";
+            const nomeProduto = _PROD ? _PROD.nome : "Aplicação";
+
+            document.getElementById('tela-pagamento').innerHTML = `
+                <div class="card-glass rounded-3xl p-8 flex flex-col items-center text-center fade-in">
+                    <div class="w-full flex justify-between items-center mb-8">
+                        <div class="text-left">
+                            <h2 class="text-2xl font-bold text-white uppercase tracking-tighter">Gateway Pix</h2>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Processamento Criptografado</p>
+                        </div>
+                        <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-full px-4 py-2 flex items-center gap-2">
+                            <div class="w-2 h-2 bg-yellow-400 rounded-full pulse-yellow"></div>
+                            <span class="text-[10px] font-black text-yellow-500 uppercase">Verificando</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-2xl mb-6 shadow-xl relative group pointer-events-none">
+                        <img src="${pagamento.qrCodeBase64}" class="w-52 h-52 object-contain mix-blend-multiply">
+                    </div>
+                    
+                    <div class="w-full flex gap-2">
+                        <div class="relative w-full">
+                            <input type="text" value="${pagamento.copiaCola}" readonly class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-4 pr-12 py-3 text-xs text-gray-400 font-mono truncate focus:outline-none">
+                            <div class="absolute right-3 top-3 text-zinc-600"><i class="fa-solid fa-key"></i></div>
+                        </div>
+                        <button onclick="copingCodigo()" class="bg-white text-black font-bold px-6 py-3 rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 flex items-center gap-2 text-indigo-500 bg-indigo-500/5 px-4 py-2 rounded-lg border border-indigo-500/10">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="text-xs font-mono font-bold">Sessão expira em: <span id="timer">--:--</span></span>
+                    </div>
+                </div>
+
+                <div class="card-glass rounded-3xl p-8 flex flex-col h-full fade-in relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full"></div>
+
+                    <div class="text-center mb-8 z-10">
+                        <div class="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center mx-auto mb-3 text-gray-400 border border-zinc-700">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-lg">Checkout Seguro</h3>
+                        <p class="text-[10px] text-gray-500 font-mono">TOKEN: ${_SESS.substring(0,12)}...</p>
+                    </div>
+
+                    <div class="space-y-3 mb-6 flex-grow">
+                        <div class="bg-[#121214] border border-zinc-800/50 rounded-xl p-4 flex justify-between items-center">
+                            <span class="text-xs text-gray-500 uppercase font-bold">Produto</span>
+                            <span class="text-sm font-bold text-white">${nomeProduto}</span>
+                        </div>
+                        <div class="bg-[#121214] border border-zinc-800/50 rounded-xl p-4 flex justify-between items-center">
+                            <span class="text-xs text-gray-500 uppercase font-bold">Ciclo</span>
+                            <span class="text-sm font-bold text-white">${planoFormatado}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#121214] border border-zinc-800 rounded-2xl p-6 text-center mt-auto">
+                        <p class="text-zinc-600 text-[9px] font-black uppercase mb-1 tracking-widest">Total Líquido</p>
+                        <h2 class="text-4xl font-black text-white tracking-tight">${_VAL(_CART.preco)}</h2>
+                    </div>
+
+                    <div class="flex justify-center gap-4 mt-6">
+                        <i class="fa-brands fa-pix text-zinc-700 text-xl"></i>
+                        <i class="fa-solid fa-shield-cat text-zinc-700 text-xl"></i>
+                        <i class="fa-solid fa-lock text-zinc-700 text-xl"></i>
+                    </div>
+                </div>`;
+            
+            iniciarTimerVisual(pagamento.expiraEm);
+        }
+
+        // Resto das funções mantido com o mesmo design e lógica do modal
+        function iniciarVerificacao() {
+            _CHCK = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/pagamento/status/${_SESS}`);
+                    const data = await res.json();
+                    if (data.pago) { clearInterval(_CHCK); ativarSistemaAutomatico(); }
+                } catch (e) {}
+            }, 5000);
+        }
+
+        async function ativarSistemaAutomatico() {
+            const modal = document.getElementById('modal-setup');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.add('scale-100'); }, 10);
+
+            const updateStep = (id, status) => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                const icon = el.querySelector('.step-icon');
+                el.classList.add('step-active');
+                if(status==='loading') icon.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                else if(status==='done') { el.classList.add('step-done'); icon.innerHTML='<i class="fa-solid fa-check"></i>'; }
+            };
+
+            updateStep('step-1', 'loading');
+            try {
+                const res = await fetch('/api/ativar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ sessaoId: _SESS }) });
+                await new Promise(r => setTimeout(r, 2000));
+                updateStep('step-1', 'done');
+                updateStep('step-2', 'loading');
+                await new Promise(r => setTimeout(r, 2000));
+                updateStep('step-2', 'done');
+                updateStep('step-3', 'loading');
+                const data = await res.json();
+                if(data.sucesso) {
+                    updateStep('step-3', 'done');
+                    setTimeout(() => window.location.href = '/dashboard', 3000);
+                } else { throw new Error(data.erro); }
+            } catch (e) {
+                document.getElementById('error-box').classList.remove('hidden');
+                document.getElementById('error-msg').innerText = e.message;
+            }
+        }
+
+        function iniciarTimerVisual(exp) {
+            setInterval(() => {
+                const r = exp - Date.now();
+                if(r <= 0) return;
+                const m = Math.floor((r / 60000) % 60);
+                const s = Math.floor((r / 1000) % 60);
+                document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            }, 1000);
+        }
+
+        function copingCodigo() { 
+            const i = document.querySelector('input[readonly]');
+            i.select(); 
+            document.execCommand('copy'); 
+            const b = event.currentTarget;
+            b.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => b.innerHTML = '<i class="fa-regular fa-copy"></i>', 2000);
+        }
+        
+        iniciarPagamento();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+[
+  {
+    "id": "bot-vendas-01",
+    "nome": "Rovix Pro",
+    "arquivo": "rovix-pro.zip",
+    "subtitulo": "Solução completa para vendas e atendimento no Discord.",
+    "tipo": "discord",
+    "descricao": "Tickets & Vendas\nModeraçao Automatica\nVerificaçao Oauth02\nBackup Diario (24hr)\nLogs Moderaçao e Boas Vindas\n+5 Recursos",
+    "destaque": true,
+    "desenvolvimento": false,
+    "precos": {
+      "mensal": 6.99,
+      "trimestral": 18,
+      "anual": 65
+    }
+  },
+  {
+    "id": "trial",
+    "nome": "Rovix Bux",
+    "arquivo": "trial.zip",
+    "tipo": "discord",
+    "descricao": "Sistema de Robux\nSistema de Ranking\nSistema de Ticket\nSistema de Perfil\nModeraçao Basica",
+    "destaque": false,
+    "desenvolvimento": true,
+    "precos": {
+      "mensal": 7,
+      "trimestral": 0,
+      "anual": 0
+    }
+  }
+]

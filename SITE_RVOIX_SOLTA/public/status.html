@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Sistema - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* Preloader */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        body.loaded { visibility: visible; opacity: 1; }
+        #global-loader {
+            visibility: visible; opacity: 1; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #050505; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+        }
+
+        /* Efeitos de Fundo */
+        .aura { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%); filter: blur(80px); z-index: -1; pointer-events: none; }
+        .aura-1 { top: -10%; left: -10%; animation: float 20s infinite alternate; }
+        @keyframes float { from { transform: translate(0, 0); } to { transform: translate(100px, 50px); } }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -2; 
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+        }
+
+        /* Indicador de Pulso */
+        .status-pulse {
+            width: 12px; height: 12px; background: #10b981; border-radius: 50%;
+            position: relative; box-shadow: 0 0 15px #10b981;
+        }
+        .status-pulse::after {
+            content: ''; position: absolute; inset: -4px; border: 2px solid #10b981;
+            border-radius: 50%; animation: pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+        
+        .status-card {
+            background: rgba(10, 10, 10, 0.6); border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px); border-radius: 2rem;
+        }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="global-loader">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-purple-600"></i>
+        <p class="text-zinc-500 text-sm font-mono animate-pulse tracking-widest uppercase">Verificando Sistemas</p>
+    </div>
+
+    <div class="aura aura-1"></div>
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-purple-500">Applications</span></span>
+        </div>
+
+        <nav class="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+            <a href="/" class="hover:text-white transition">Início</a>
+            <a href="/planos" class="hover:text-white transition">Planos</a>
+            <a href="/sobre" class="hover:text-white transition">Sobre</a>
+            <a href="/status" class="text-white">Status</a> 
+        </nav>
+
+        <div id="auth-area" class="relative"></div>
+    </header>
+
+    <main class="relative z-10 py-24 px-6 flex-grow">
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="status-card p-8 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-emerald-500">
+                <div class="flex items-center gap-6">
+                    <div class="status-pulse"></div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-black tracking-tight">Sistemas <span class="text-emerald-500">Operacionais</span></h1>
+                        <p class="text-zinc-500 text-sm mt-1">Todos os serviços estão respondendo normalmente.</p>
+                    </div>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-zinc-600 text-xs uppercase font-bold tracking-widest">Última checagem</p>
+                    <p id="last-update" class="text-white font-mono text-sm">Carregando...</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
+                <div class="status-card p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-cloud text-purple-500"></i>
+                        <span class="font-bold text-zinc-300">Infraestrutura Cloud</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-black border border-emerald-500/20">ESTÁVEL</span>
+                </div>
+                <div class="status-card p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-database text-purple-500"></i>
+                        <span class="font-bold text-zinc-300">Banco de Dados</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-black border border-emerald-500/20">ESTÁVEL</span>
+                </div>
+                <div class="status-card p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-brands fa-discord text-purple-500 text-lg"></i>
+                        <span class="font-bold text-zinc-300">Integração Discord API</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-black border border-emerald-500/20">ESTÁVEL</span>
+                </div>
+                <div class="status-card p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-shield-halved text-purple-500"></i>
+                        <span class="font-bold text-zinc-300">Gateway de Segurança</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-black border border-emerald-500/20">ESTÁVEL</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-8 text-center border-t border-white/5 pt-16 mb-20">
+                <div>
+                    <p class="text-4xl md:text-5xl font-black text-emerald-500">100%</p>
+                    <p class="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mt-2">Uptime 24h</p>
+                </div>
+                <div>
+                    <p class="text-4xl md:text-5xl font-black text-white">18ms</p>
+                    <p class="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mt-2">Latência</p>
+                </div>
+                <div>
+                    <p class="text-4xl md:text-5xl font-black text-white">0</p>
+                    <p class="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mt-2">Incidentes</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-20 border-t border-zinc-900 bg-[#050505] relative z-10">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 text-left">
+            <div class="col-span-1">
+                <div class="flex items-center gap-3 font-bold text-xl text-white mb-6">
+                    <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:30px;height:30px;object-fit:cover;border-radius:999px;">
+                    <span>Rovix Applications</span>
+                </div>
+                <p class="text-zinc-500 text-sm leading-relaxed">Infraestrutura cloud proprietária para comunidades de alta performance.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 col-span-1 md:col-span-3 gap-8 md:justify-items-end">
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Produtos</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="planos" class="hover:text-purple-500 transition">Planos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="/termos" class="hover:text-purple-500 transition">Termos</a></li>
+                        <li><a href="/faq" class="hover:text-purple-500 transition">Dúvidas</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Social</h4>
+                    <ul class="space-y-4 text-zinc-500 text-sm">
+                        <li><a href="https://discord.gg/rovix" class="hover:text-purple-500"><i class="fa-brands fa-discord"></i> Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-8 mt-20 pt-8 border-t border-zinc-900 text-center">
+            <p class="text-zinc-700 text-xs tracking-widest uppercase">© 2025 Rovix Applications • Status em tempo real</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleUserMenu() { document.getElementById('user-menu')?.classList.toggle('active'); }
+        function logout() { localStorage.removeItem('zyper_user'); window.location.href = '/'; }
+
+        function carregarAuthArea() {
+            const userJson = localStorage.getItem('zyper_user');
+            const authArea = document.getElementById('auth-area');
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                authArea.innerHTML = `
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-3 bg-[#0a0a0a] border border-white/10 pr-4 pl-1 py-1 rounded-full relative z-50 group">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-9 h-9 rounded-full object-cover">
+                        <div class="text-left hidden sm:block"><p class="text-xs font-bold text-white leading-tight">${user.username}</p></div>
+                        <i class="fa-solid fa-chevron-down text-xs text-zinc-600 group-hover:text-white ml-2 transition"></i>
+                    </button>
+                    <div id="user-menu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-[#09090b] border border-zinc-800 rounded-2xl shadow-xl p-2 z-50 text-left">
+                        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-layer-group w-4"></i> Aplicações</a>
+                        <a href="/conta" class="flex items-center gap-3 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 rounded-lg transition"><i class="fa-solid fa-gear w-4"></i> Minha Conta</a>
+                        <div class="h-px bg-zinc-800 my-2"></div>
+                        <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition text-left"><i class="fa-solid fa-sign-out w-4"></i> Sair</button>
+                    </div>`;
+            } else {
+                authArea.innerHTML = `<a href="/login.html" class="bg-white text-black px-6 py-2 rounded-xl font-bold text-sm hover:bg-zinc-200 transition">Login</a>`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            carregarAuthArea();
+            
+            setTimeout(() => {
+                document.getElementById('global-loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('global-loader').style.display = 'none';
+                    document.body.classList.add('loaded');
+                }, 300);
+            }, 600);
+        });
+
+        window.onclick = (e) => { if (!e.target.closest('#auth-area')) document.getElementById('user-menu')?.classList.remove('active'); }
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

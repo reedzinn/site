@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Bot - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Fonte padrão do sistema (Simples e Leve) */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #050505; 
+            color: #e4e4e7; 
+            overflow-x: hidden; 
+        }
+        
+        /* Layout Sidebar */
+        .sidebar-item { transition: all 0.2s; border-left: 2px solid transparent; }
+        .sidebar-item:hover, .sidebar-item.active { background-color: rgba(255,255,255,0.03); color: white; border-left-color: #6366f1; }
+        .sidebar-item.active i { color: #6366f1; }
+
+        /* Loader & Cards */
+        body { visibility: hidden; opacity: 0; }
+        body.autorizado { visibility: visible; opacity: 1; transition: opacity 0.3s; }
+        #global-loader { visibility: visible; opacity: 1; position: fixed; inset: 0; background: #050505; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .card-panel { background-color: #09090b; border: 1px solid #27272a; border-radius: 16px; }
+        
+        /* Status Dot */
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-green { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+        .dot-red { background-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+
+        /* Modal Token */
+        .step-item { transition: all 0.3s ease; border: 1px solid transparent; }
+        .step-active { background-color: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); }
+        .step-done .step-icon { background-color: #10b981; color: black; border-color: #10b981; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen flex bg-[#050505]">
+
+    <div id="global-loader">
+        <i class="fa-solid fa-layer-group text-4xl text-indigo-600 mb-4 animate-bounce"></i>
+        <p style="font-family: monospace;" class="text-zinc-500 text-xs uppercase tracking-widest">Carregando Instância...</p>
+    </div>
+
+    <aside class="w-64 h-screen border-r border-zinc-800 bg-[#050505] fixed left-0 top-0 flex flex-col z-50 hidden md:flex">
+        <div class="p-6 border-b border-zinc-800/50 flex items-center gap-3">
+            <div class="w-8 h-8 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center justify-center font-bold text-white text-xs">IS</div>
+            <span class="font-bold text-sm tracking-tight text-white">Rovix Manager</span>
+        </div>
+
+        <div class="p-4 space-y-1 overflow-y-auto flex-1">
+            <p class="text-[10px] uppercase font-bold text-zinc-600 px-3 mb-2 mt-2">Navegação do Bot</p>
+            <a href="#" class="sidebar-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-400">
+                <i class="fa-solid fa-terminal w-5 text-center"></i> Console
+            </a>
+            <p class="text-[10px] uppercase font-bold text-zinc-600 px-3 mb-2 mt-6">Sistema</p>
+            <a href="/dashboard" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left w-5 text-center"></i> Voltar ao Painel
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 md:ml-64 p-6 md:p-10 max-w-7xl mx-auto w-full">
+        
+        <div id="token-alert" class="hidden mb-6 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-center justify-between animate-pulse">
+            <div class="flex items-center gap-3 text-yellow-500">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="text-sm"><p class="font-bold">Atenção Necessária</p><p class="text-xs opacity-80">Configure o token e o ID do servidor para iniciar e carregar os emojis.</p></div>
+            </div>
+            <button onclick="focarConfiguracao()" class="text-xs bg-yellow-500 text-black font-bold px-3 py-1.5 rounded hover:bg-yellow-400 transition">Configurar</button>
+        </div>
+
+        <div class="card-panel p-6 flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
+            <div class="flex items-center gap-5 w-full">
+                <div id="bot-avatar-container" class="w-16 h-16 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg">
+                    <i class="fa-brands fa-discord text-4xl text-[#5865F2]"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 id="bot-name" class="text-2xl font-bold text-white">Carregando...</h1>
+                        <span id="status-badge" class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-zinc-500 uppercase tracking-wide">
+                            <span class="dot bg-zinc-600"></span> Verificando
+                        </span>
+                    </div>
+                    <p class="text-xs text-zinc-500 bg-black/30 px-2 py-1 rounded border border-white/5 inline-block select-all">ID: <span id="app-id">...</span></p>
+                </div>
+            </div>
+
+            <div id="action-buttons" class="flex gap-2 w-full md:w-auto shrink-0">
+                <button disabled class="bg-zinc-800 border border-zinc-700 text-zinc-500 px-6 py-2 rounded-lg font-bold text-sm cursor-not-allowed w-full md:w-auto flex items-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Ações
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="card-panel p-5 relative overflow-hidden group">
+                <div class="flex items-center gap-3 mb-1 text-zinc-400">
+                    <div class="p-2 bg-zinc-800/50 rounded-lg"><i class="fa-regular fa-clock text-xs"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-wider">Tempo Online</span>
+                </div>
+                <p id="uptime-text" class="text-2xl font-bold text-white mt-2 tracking-tight">00h 00m 00s</p>
+            </div>
+            
+            <div class="card-panel p-5 relative overflow-hidden group">
+                <div class="flex items-center gap-3 mb-1 text-zinc-400">
+                    <div class="p-2 bg-zinc-800/50 rounded-lg"><i class="fa-regular fa-calendar-check text-xs"></i></div>
+                    <span class="text-xs font-bold uppercase tracking-wider">Expiração</span>
+                </div>
+                <p id="vencimento-text" class="text-lg font-bold text-white mt-2 truncate">--/--/----</p>
+                <p id="dias-restantes" class="text-xs text-zinc-500 mt-1">-- dias restantes</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="card-panel p-6 flex flex-col justify-center items-center">
+                <a id="btn-invite" href="#" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold text-sm text-center opacity-50 cursor-not-allowed pointer-events-none transition">
+                    <i class="fa-solid fa-plus mr-2"></i> Adicionar Bot ao Servidor
+                </a>
+            </div>
+
+            <div class="card-panel p-6 text-center">
+                <button onclick="renovarPlano()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white py-3 rounded-xl font-bold text-sm transition border border-zinc-700">
+                    Renovar Plano
+                </button>
+            </div>
+        </div>
+
+        <div class="card-panel p-6">
+            <h3 class="text-sm font-bold text-white mb-4">Configuração do Token</h3>
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-3">
+                <div class="relative flex-grow">
+                    <input type="password" id="bot-token" placeholder="Cole o token do bot aqui..." 
+                           class="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none transition">
+                    <button onclick="toggleToken()" class="absolute right-3 top-2.5 text-zinc-500 hover:text-white"><i class="fa-solid fa-eye" id="eye-icon"></i></button>
+                </div>
+                <input type="text" id="server-id" placeholder="ID do servidor"
+                       class="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none transition">
+                <button onclick="salvarToken()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-2 rounded-lg font-bold text-sm transition">
+                    Salvar Token
+                </button>
+            </div>
+            <p class="text-[10px] text-yellow-500/80 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-clock"></i> Depois de salvar ou ligar, aguarde 20 a 30 segundos. O bot carrega e sincroniza os emojis antes de ficar online.
+            </p>
+            <p id="token-aviso" class="text-[10px] text-zinc-500 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-info-circle"></i> Necessário para ligar o bot.
+            </p>
+        </div>
+
+    </main>
+
+    <div id="modal-token" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-500">
+        <div class="card-panel w-full max-w-md p-8 text-center transform scale-95 transition-transform duration-500" id="modal-box">
+            <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-800 animate-pulse relative">
+                <i class="fa-solid fa-sync fa-spin text-2xl text-indigo-500"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white">Atualizando Token</h2>
+            <p class="text-xs text-zinc-500 mt-2">Aguarde 20 a 30 segundos: o bot precisa carregar os emojis antes de ficar online.</p>
+            <div class="space-y-3 mt-6" id="steps-list">
+                <div id="step-1" class="step-item flex items-center gap-4 p-3 rounded-xl">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs transition-colors duration-300"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+                    <div class="text-left"><h4 class="text-white text-sm font-bold">Validando Token</h4></div>
+                </div>
+                <div id="step-2" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs"><i class="fa-solid fa-file-code"></i></div>
+                    <div class="text-left"><h4 class="text-white text-sm font-bold">Aplicando Configurações</h4></div>
+                </div>
+                <div id="step-3" class="step-item flex items-center gap-4 p-3 rounded-xl opacity-50">
+                    <div class="step-icon w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-500 text-xs"><i class="fa-solid fa-power-off"></i></div>
+                    <div class="text-left"><h4 class="text-white text-sm font-bold">Ligando e Carregando Emojis</h4></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userJson = localStorage.getItem('zyper_user');
+        if (!userJson) { window.location.href = '/login'; throw new Error("Acesso negado"); }
+        
+        let user;
+        try { user = JSON.parse(userJson); } catch (e) { localStorage.removeItem('zyper_user'); window.location.href = '/login'; }
+        
+        const USER_ID = user.discordId || user.id; 
+        const USER_EMAIL = user.email || ''; 
+        const urlParams = new URLSearchParams(window.location.search);
+        const squareId = localStorage.getItem('bot_ativo_id') || urlParams.get('id');
+        let uptimeInterval = null;
+        let botAtual = null;
+        let statusInterval = null;
+        let statusRequestSeq = 0;
+        let actionPendingUntil = 0;
+
+        function autorizarAcesso() {
+            document.getElementById('global-loader').style.display = 'none';
+            document.body.classList.add('autorizado');
+        }
+
+        async function init() {
+            if(!squareId) { window.location.href='/dashboard'; return; }
+            try {
+                const res = await fetch(`/api/bot/detalhes/${squareId}?userId=${USER_ID}&email=${USER_EMAIL}`);
+                const data = await res.json();
+                
+                if(!data.sucesso) { window.location.href='/dashboard'; return; }
+                
+                renderInterface(data.bot);
+                autorizarAcesso();
+                iniciarStatusTempoReal();
+            } catch (e) { window.location.href='/dashboard'; }
+        }
+
+        function renderInterface(bot) {
+            botAtual = bot;
+            document.getElementById('bot-name').innerText = bot.identidade ? bot.identidade.username : bot.produto.nome;
+            document.getElementById('app-id').innerText = bot.squareCloudId;
+            const serverInput = document.getElementById('server-id');
+            const serverAtual = bot.serverId || bot.guildId || bot.server || '';
+            if (serverAtual) serverInput.placeholder = `Servidor salvo: ${serverAtual}`;
+            if(bot.identidade && bot.identidade.avatar) {
+                document.getElementById('bot-avatar-container').innerHTML = `<img src="${bot.identidade.avatar}" class="w-full h-full object-cover">`;
+            }
+
+            const dataExp = new Date(bot.datas.expiraEm);
+            const diasRestantes = Math.ceil((dataExp - new Date()) / (86400000));
+            document.getElementById('vencimento-text').innerText = dataExp.toLocaleDateString('pt-BR');
+            document.getElementById('dias-restantes').innerText = diasRestantes > 0 ? `${diasRestantes} dias restantes` : "Vencido";
+            
+            const btnInvite = document.getElementById('btn-invite');
+            const clientId = bot.identidade ? bot.identidade.id : bot.idBotDiscord;
+            const hasToken = !!(clientId && (bot.hasToken || bot.tokenStatus === 'definido'));
+            const hasServer = !!serverAtual;
+
+            if (hasToken && hasServer) {
+                document.getElementById('token-alert').classList.add('hidden');
+                document.getElementById('bot-token').placeholder = "•••••••••••••••••••••••• (Oculto)";
+                btnInvite.href = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=8&scope=bot`;
+                btnInvite.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            } else {
+                document.getElementById('token-alert').classList.remove('hidden');
+            }
+        }
+
+        function configSalvaCompleta() {
+            const tokenSalvo = !!(botAtual?.hasToken || botAtual?.tokenStatus === 'definido');
+            const serverSalvo = !!(botAtual?.serverId || botAtual?.guildId || botAtual?.server);
+            return tokenSalvo && serverSalvo;
+        }
+
+        function focarConfiguracao() {
+            const target = document.getElementById((botAtual?.serverId || botAtual?.guildId || botAtual?.server) ? 'bot-token' : 'server-id');
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => target.focus(), 350);
+        }
+
+        function iniciarStatusTempoReal() {
+            if (statusInterval) clearInterval(statusInterval);
+            atualizarStatus(true);
+            statusInterval = setInterval(() => atualizarStatus(false), 5000);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) atualizarStatus(true);
+        });
+
+        async function atualizarStatus(force = false) {
+            try {
+                const requestSeq = ++statusRequestSeq;
+                const res = await fetch(`/api/square/status/${squareId}?userId=${encodeURIComponent(USER_ID)}&email=${encodeURIComponent(USER_EMAIL)}&_=${Date.now()}`, { cache: 'no-store' });
+                const data = await res.json();
+                if (requestSeq !== statusRequestSeq && !force) return;
+                const status = data.sucesso ? data.status : { running: false };
+                const badge = document.getElementById('status-badge');
+                const actions = document.getElementById('action-buttons');
+
+                if(status.needsConfig || !configSalvaCompleta()) {
+                    actionPendingUntil = 0;
+                    stopLiveUptime();
+                    badge.className = "flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-yellow-500 uppercase tracking-wide";
+                    badge.innerHTML = `<span class="dot bg-yellow-500"></span> Configurar`;
+                    actions.innerHTML = `
+                        <button onclick="focarConfiguracao()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-bold text-xs transition">Configurar Token + Servidor</button>
+                    `;
+                    document.getElementById('token-alert').classList.remove('hidden');
+                    return;
+                }
+
+                if(status.running) {
+                    actionPendingUntil = 0;
+                    badge.className = "flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-emerald-500 uppercase tracking-wide";
+                    badge.innerHTML = `<span class="dot dot-green"></span> Online`;
+                    actions.innerHTML = `
+                        <button onclick="controlarBot('restart')" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg font-bold text-xs border border-zinc-700 transition">Reiniciar</button>
+                        <button onclick="controlarBot('stop')" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-lg font-bold text-xs border border-red-500/20 transition">Desligar</button>
+                    `;
+                    startLiveUptime(status.uptime || 0);
+                } else if(status.starting || Date.now() < actionPendingUntil) {
+                    badge.className = "flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-indigo-400 uppercase tracking-wide";
+                    badge.innerHTML = `<span class="dot bg-indigo-400"></span> Iniciando`;
+                    actions.innerHTML = `
+                        <div class="text-xs text-zinc-400 flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i> Sincronizando com o bot... aguarde 20 a 30 segundos.</div>
+                    `;
+                    startLiveUptime(status.uptime || 0);
+                } else {
+                    actionPendingUntil = 0;
+                    stopLiveUptime();
+                    badge.className = "flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-red-500 uppercase tracking-wide";
+                    badge.innerHTML = `<span class="dot dot-red"></span> Offline`;
+                    actions.innerHTML = `
+                        <button onclick="controlarBot('start')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-bold text-xs transition">Ligar Bot</button>
+                    `;
+                }
+            } catch(e){}
+        }
+
+        async function controlarBot(action) {
+            if(['start', 'restart'].includes(action) && !configSalvaCompleta()) {
+                alert("Antes de ligar, salve o token do bot junto com o ID do servidor. O ID do servidor e necessario para carregar os emojis.");
+                focarConfiguracao();
+                return;
+            }
+            document.getElementById('action-buttons').innerHTML = action === 'start'
+                ? `<div class="text-xs text-zinc-400 flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i> Ligando... aguarde 20 a 30 segundos para carregar os emojis.</div>`
+                : `<i class="fa-solid fa-circle-notch fa-spin text-zinc-500"></i>`;
+            const res = await fetch('/api/square/action', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ squareId, action, userId: USER_ID, email: USER_EMAIL }) });
+            const data = await res.json().catch(() => ({}));
+            if(!data.sucesso && data.needsConfig) {
+                alert(data.erro || "Configure o token e o ID do servidor antes de ligar.");
+                focarConfiguracao();
+                atualizarStatus(true);
+                return;
+            }
+            actionPendingUntil = Date.now() + (action === 'stop' ? 0 : 35000);
+            if (action === 'stop') stopLiveUptime();
+            setTimeout(() => atualizarStatus(true), action === 'start' ? 3000 : 1500);
+        }
+
+        async function salvarToken() {
+            const token = document.getElementById('bot-token').value;
+            const serverId = document.getElementById('server-id').value || botAtual?.serverId || botAtual?.guildId || botAtual?.server || '';
+            if(!token) return alert("Digite o token!");
+            if(!serverId) return alert("Digite o ID do servidor onde o bot vai funcionar.");
+
+            const modal = document.getElementById('modal-token');
+            const box = document.getElementById('modal-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
+
+            const updateStep = (id, status) => {
+                const el = document.getElementById(id);
+                const icon = el.querySelector('.step-icon');
+                el.classList.remove('opacity-50'); el.classList.add('step-active');
+                if(status==='loading') icon.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                else if(status==='done') { el.classList.add('step-done'); icon.innerHTML='<i class="fa-solid fa-check"></i>'; }
+            };
+
+            updateStep('step-1', 'loading');
+            try {
+                const res = await fetch('/api/square/token', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ squareId, newToken: token, serverId, userId: USER_ID, email: USER_EMAIL }) });
+                const data = await res.json().catch(() => ({}));
+                if(!res.ok || !data.sucesso) throw new Error(data.erro || "Erro ao salvar token.");
+                if(data.appId) localStorage.setItem('bot_ativo_id', data.appId);
+                await new Promise(r => setTimeout(r, 1500)); updateStep('step-1', 'done'); updateStep('step-2', 'loading');
+                await new Promise(r => setTimeout(r, 1500)); updateStep('step-2', 'done'); updateStep('step-3', 'loading');
+                await new Promise(r => setTimeout(r, 1500));
+                window.location.reload();
+            } catch(e) { alert(e.message || "Erro ao salvar."); modal.classList.add('hidden'); }
+        }
+
+        function toggleToken() {
+            const inp = document.getElementById('bot-token');
+            const ico = document.getElementById('eye-icon');
+            if(inp.type==='password') { inp.type='text'; ico.className="fa-solid fa-eye-slash"; }
+            else { inp.type='password'; ico.className="fa-solid fa-eye"; }
+        }
+
+        function stopLiveUptime() {
+            if (uptimeInterval) clearInterval(uptimeInterval);
+            uptimeInterval = null;
+            document.getElementById('uptime-text').innerText = "00h 00m 00s";
+        }
+
+        function startLiveUptime(uptimeValue) {
+            if (uptimeInterval) clearInterval(uptimeInterval);
+            const raw = Number(uptimeValue || 0);
+            let uptimeMs;
+            if (raw > 100000000000) uptimeMs = Date.now() - raw;
+            else if (raw > 1000000) uptimeMs = raw;
+            else uptimeMs = raw * 1000;
+            let startTimestamp = Date.now() - Math.max(0, uptimeMs);
+            const update = () => {
+                const diff = Date.now() - startTimestamp;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('uptime-text').innerText = `${h < 10 ? '0'+h : h}h ${m < 10 ? '0'+m : m}m ${s < 10 ? '0'+s : s}s`;
+            };
+            update(); uptimeInterval = setInterval(update, 1000);
+        }
+
+        function renovarPlano() { window.location.href = `/cartrenovar?id=${squareId}`; }
+        init();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>

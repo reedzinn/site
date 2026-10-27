@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisão Final - Rovix Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #050505; 
+            color: #e4e4e7; 
+            overflow-x: hidden; 
+        }
+        
+        .bg-grid { 
+            position: fixed; inset: 0; z-index: -2; 
+            background-image: linear-gradient(to right, rgba(124, 58, 237, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(124, 58, 237, 0.05) 1px, transparent 1px); 
+            background-size: 40px 40px; 
+        }
+
+        .checkout-card {
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+        }
+
+        .input-cupom { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            color: white; 
+            transition: 0.2s; 
+        }
+        .input-cupom:focus { border-color: #7c3aed; outline: none; background: rgba(124, 58, 237, 0.05); }
+
+        .step-done { color: #10b981; }
+        .step-active { background: #7c3aed; }
+        
+        .dropdown-menu { opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all 0.2s ease; visibility: hidden; }
+        .dropdown-menu.active { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+    </style>
+    <link rel="icon" type="image/webp" href="/img/rovix-logo.webp">
+</head>
+<body class="min-h-screen">
+
+    <div class="bg-grid"></div>
+
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div class="flex items-center gap-3 font-bold text-xl text-white tracking-wide">
+            <img src="/img/rovix-logo.webp" alt="Rovix Applications" style="width:35px;height:35px;object-fit:cover;border-radius:999px;">
+            <span>Rovix <span class="text-purple-500">Applications</span></span>
+        </div>
+      
+        <div class="flex items-center gap-6">
+            <div id="header-user-info" class="hidden md:flex relative"></div>
+            <a href="/" class="text-sm text-zinc-500 hover:text-white transition flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 pb-24 relative z-10">
+        
+        <div class="flex justify-center items-center gap-4 mb-16">
+            <div class="flex flex-col items-center gap-2 step-done">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/50 flex items-center justify-center text-emerald-500"><i class="fa-solid fa-check"></i></div>
+                <span class="text-[11px] font-bold uppercase">Configurar</span>
+            </div>
+            <div class="w-12 h-[1px] bg-emerald-500/30 mb-5"></div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-10 h-10 rounded-xl step-active flex items-center justify-center text-white font-bold">2</div>
+                <span class="text-[11px] font-bold text-purple-500 uppercase">Revisão</span>
+            </div>
+            <div class="w-12 h-[1px] bg-zinc-800 mb-5"></div>
+            <div class="flex flex-col items-center gap-2 opacity-30">
+                <div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 font-bold">3</div>
+                <span class="text-[11px] font-bold text-zinc-500 uppercase">Pagar</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <div class="lg:col-span-5 space-y-6">
+                <div class="checkout-card p-8">
+                    <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-ticket text-purple-500"></i> Cupom de Desconto
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="cupom-input" placeholder="Digite o Cupom Aqui" class="input-cupom w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider">
+                        <button onclick="aplicarCupom()" id="btn-aplicar" class="bg-white text-black hover:bg-zinc-200 font-bold px-6 py-3 rounded-xl text-sm transition">Aplicar</button>
+                    </div>
+                    <p id="msg-cupom" class="text-[11px] mt-3 font-bold uppercase tracking-tight min-h-[16px]"></p>
+                </div>
+
+                <div class="checkout-card p-6 border-emerald-500/10">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-lock text-emerald-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Checkout Seguro</h4>
+                            <p class="text-zinc-500 text-xs mt-1 leading-relaxed">
+                                Seus dados estão protegidos por criptografia de ponta a ponta. A ativação é imediata após o pagamento.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="window.history.back()" class="w-full text-zinc-500 hover:text-white font-bold py-2 text-sm transition">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Alterar configuração
+                </button>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="checkout-card p-8 text-center md:text-left relative overflow-hidden">
+                    <div class="flex flex-col md:flex-row items-center gap-8 border-b border-white/5 pb-8 mb-8">
+                        <div class="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/10 flex-shrink-0 shadow-xl">
+                            <i id="prod-icon" class="fa-brands fa-discord text-4xl text-purple-500"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-1">Você está adquirindo:</p>
+                            <h2 id="prod-nome" class="text-2xl font-bold text-white mb-2">...</h2>
+                            <span id="label-plano" class="bg-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">...</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-zinc-500 font-medium">Preço do Produto</span>
+                            <span id="valor-original" class="text-white font-bold">R$ 0,00</span>
+                        </div>
+                        <div id="linha-desconto" class="flex justify-between text-sm hidden">
+                            <span class="text-emerald-500 font-medium italic">Cupom Aplicado (<span id="cupom-nome"></span>)</span>
+                            <span id="valor-desconto" class="text-emerald-500 font-bold">- R$ 0,00</span>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl p-6 mt-6 border border-white/5 text-center">
+                            <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-[2px] mb-2">Total a Pagar</p>
+                            <h3 id="valor-total" class="text-5xl font-bold text-white tracking-tighter">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <button onclick="irParaPagamento()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-5 rounded-2xl transition shadow-xl shadow-purple-600/20 flex items-center justify-center gap-3 group">
+                        Continuar para o Pagamento <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let dadosCarrinho = null, precoFinal = 0;
+        const formatar = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function carregarCarrinho() {
+            const sessaoId = localStorage.getItem('zyper_session');
+            if (!sessaoId) { window.location.href = '/'; return; }
+            try {
+                const res = await fetch(`/api/carrinho/${sessaoId}`);
+                const data = await res.json();
+                if (!data.sucesso) { window.location.href = '/'; return; }
+                
+                dadosCarrinho = data.carrinho;
+                precoFinal = dadosCarrinho.preco;
+                
+                const resProd = await fetch('/api/produtos');
+                const prods = await resProd.json();
+                const produtoDetalhes = prods.find(p => p.id === dadosCarrinho.produtoId);
+                
+                document.getElementById('prod-nome').innerText = produtoDetalhes.nome;
+                document.getElementById('label-plano').innerText = `PLANO ${dadosCarrinho.plano.toUpperCase()}`;
+                document.getElementById('valor-original').innerText = formatar(dadosCarrinho.preco);
+                document.getElementById('valor-total').innerText = formatar(dadosCarrinho.preco);
+                
+                if (produtoDetalhes.tipo === 'roblox') {
+                    document.getElementById('prod-icon').className = "fa-solid fa-cube text-4xl text-emerald-500";
+                    document.getElementById('label-plano').className = "bg-emerald-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase";
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function aplicarCupom() {
+            const input = document.getElementById('cupom-input');
+            const codigo = input.value.trim();
+            const msg = document.getElementById('msg-cupom');
+            const btn = document.getElementById('btn-aplicar');
+            const user = JSON.parse(localStorage.getItem('zyper_user'));
+            
+            if(!codigo || !user) return;
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+
+            try {
+                // Chama a nova rota que altera o preço no carrinho.json do servidor
+                const res = await fetch('/api/carrinho/aplicar-desconto', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ 
+                        usuarioId: user.email, // Usa o email do usuário logado
+                        cupomCodigo: codigo 
+                    }) 
+                });
+                const data = await res.json();
+                
+                if(data.sucesso) {
+                    const desconto = (dadosCarrinho.preco - data.novoPreco);
+                    precoFinal = data.novoPreco;
+                    
+                    msg.className = "text-[11px] mt-3 text-emerald-500 font-bold uppercase";
+                    msg.innerText = `✅ Cupom aplicado: -${data.porcentagem}%`;
+                    
+                    document.getElementById('linha-desconto').classList.remove('hidden');
+                    document.getElementById('cupom-nome').innerText = codigo.toUpperCase();
+                    document.getElementById('valor-desconto').innerText = `- ${formatar(desconto)}`;
+                    document.getElementById('valor-total').innerText = formatar(precoFinal);
+
+                    input.disabled = true;
+                    btn.style.display = 'none';
+                    
+                } else {
+                    msg.className = "text-[11px] mt-3 text-red-500 font-bold uppercase";
+                    msg.innerText = `❌ ${data.erro}`;
+                }
+            } catch (err) { 
+                console.error(err);
+                msg.innerText = "Erro ao validar cupom."; 
+            } finally {
+                if(!input.disabled) {
+                    btn.innerText = "Aplicar";
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        function irParaPagamento() { 
+            window.location.href = '/pagamento'; 
+        }
+
+        // Dropdown do Usuário
+        const user = JSON.parse(localStorage.getItem('zyper_user'));
+        if(user) {
+            const info = document.getElementById('header-user-info');
+            info.classList.remove('hidden');
+            info.innerHTML = `
+                <button onclick="document.getElementById('checkout-user-menu').classList.toggle('active')" class="flex items-center gap-3 bg-white/5 border border-white/10 pr-4 pl-1.5 py-1.5 rounded-2xl hover:bg-white/10 transition group">
+                    <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-8 h-8 rounded-xl border border-white/10">
+                    <div class="text-left">
+                        <p class="text-[10px] font-bold text-white uppercase">${user.username}</p>
+                        <p class="text-[9px] text-purple-500 font-bold">Verificado</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-zinc-600 ml-2 group-hover:text-white"></i>
+                </button>
+                <div id="checkout-user-menu" class="dropdown-menu absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-white/5 rounded-2xl p-2 z-50 shadow-2xl">
+                    <button onclick="localStorage.removeItem('zyper_user'); window.location.href='/login.html'" class="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-bold text-red-400 hover:bg-red-400/10 rounded-xl transition uppercase">Sair</button>
+                </div>
+            `;
+        }
+
+        carregarCarrinho();
+    </script>
+    <script src="/js/site-guard.js"></script>
+</body>
+</html>
